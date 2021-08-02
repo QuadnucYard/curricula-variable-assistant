@@ -1,0 +1,147 @@
+html {
+    font-family: sans-serif;
+    -ms-text-size-adjust: 100%;
+    -webkit-text-size-adjust: 100%;
+    margin:0px;
+}
+
+
+table {
+    border-collapse: collapse;
+    border-spacing: 0;
+}
+
+td,
+th {
+    padding: 0;
+}
+
+.pure-table {
+    border-collapse: collapse;
+    border-spacing: 0;
+    empty-cells: show;
+    border: 1px solid #cbcbcb;
+    text-align: center;
+}
+
+.pure-table caption {
+    color: #000;
+    font: italic 85%/1 arial, sans-serif;
+    padding: 1em 0;
+    text-align: center;
+}
+
+.pure-table td,
+.pure-table th {
+    border-left: 1px solid #cbcbcb;
+    border-width: 0 0 0 1px;
+    font-size: inherit;
+    margin: 0;
+    overflow: visible;
+    padding: .5em 1em;
+}
+
+.pure-table thead {
+    background-color: #e0e0e0;
+    color: #000;
+    text-align: left;
+    vertical-align: bottom;
+}
+
+.pure-table td {
+    background-color: transparent;
+}
+
+.pure-table-bordered td {
+    border-bottom: 1px solid #cbcbcb;
+}
+
+.pure-table-bordered tbody>tr:last-child>td {
+    border-bottom-width: 0;
+}
+
+.timetable {
+    margin-left: auto;
+    margin-right: auto;
+    background: #e6f3f5;
+}
+.session-label {
+    border: 2px solid #1bb8a3;
+    border-radius: 8px;
+    background: #b1ebf3;
+    
+    font-size: 0.8em;
+    padding: 4 4 4 4px;
+}
+.session-label:hover {
+    background: #9fd8df;
+    transition: 0.2s;
+}
+.session-label p {
+    margin: 2 0 0 0em;
+}
+
+ul.clist {
+    list-style-type: none;
+    margin-left: auto;
+    margin-right: auto;
+    padding: 0;
+    width: 60%; 
+    background-color: #e9e6f3;
+    /* height: 100%; */
+    overflow: auto;
+    user-select: none;
+}
+
+ul.clist li {
+    display: block;
+    /* border: 1px solid #7873b3; */
+    padding: 4 4 4 4px;
+    text-decoration: none;
+}
+ul.clist li div {
+    display: block;
+    padding: 8 0 8 0px;
+}
+ul.clist li:not(ul):hover {
+    background-color: #ccc3cc;
+    transition: 0.2s;
+}
+ul.clist li ul {
+    display: block;
+    color: #000;
+    background-color: #e4d0ec;
+    margin-left: 8px;
+    padding-left: 4px;
+    text-decoration: none;
+}
+ul.clist li ul li {
+    
+    
+}
+ul.clist li ul li:hover {
+    background-color: #c3b6c9;
+}
+ul.clist li ul li.selected {
+    background-color: #a873cc;
+}
+ul.clist li ul li.conflicting:not(.selected) {
+    background-color: #f15448;
+}
+
+.tag-caption { /*有颜色的圆角矩形标签*/
+    display: inline-block;
+    border: none;
+    border-radius: 4px;
+    background-color: #1bb8a3;
+    color: #f1f1f1;
+    padding: 4 6 4 4px;
+}
+
+.text-center {
+    text-align: center;
+}
+
+.data-input {
+    font: 14px "Consolas"
+}
