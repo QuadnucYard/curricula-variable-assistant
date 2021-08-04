@@ -2,17 +2,207 @@ html {
     font-family: sans-serif;
     -ms-text-size-adjust: 100%;
     -webkit-text-size-adjust: 100%;
-    margin:0px;
+    margin: 0px;
 }
 
+body {
+    margin: 0;
+}
+
+header {
+    background-color: #242424;
+    padding: 0px;
+    height: 50px;
+    /* position: sticky; */
+    top: 0;
+}
+
+.cva-h1, .cva-h2, .cva-h3, .cva-h4, .cva-h5, .cva-h6 {
+    margin-top: 0;
+    margin-bottom: .5em;
+    font-family: inherit;
+    font-weight: bold;
+    line-height: 1.2;
+    color: inherit;
+}
+
+.cva-h1 {
+    font-size: 1.75em;
+}
+
+.cva-h2 {
+    font-size: 1.25em;
+}
+
+.cva-h3 {
+    font-size: 1.125em;
+}
+
+.cva-h4 {
+    font-size: 1em;
+}
+
+.cva-h5 {
+    font-size: 0.875em;
+}
+
+.cva-h6 {
+    font-size: 0.875em;
+}
+
+.cva-caption {
+    font-size: 0.875em;
+}
+
+.cva-form-sz-small {
+    font-size: 0.875em;
+    padding: 0.125em 0.5em;
+}
+
+.cva-form-sz-middle {
+    font-size: 0.875em;
+    padding: 0.313em 1em;
+}
+
+.cva-form-sz-large {
+    font-size: 1em;
+    padding: 0.5em 1em;
+}
+
+button.confirm, button.cancel {
+    display: inline-block;
+    flex: none;
+    outline: 0;
+    color: #fff;
+    cursor: pointer;
+    font-weight: inherit;
+    line-height: 1.5;
+    text-align: center;
+    vertical-align: middle;
+    background: 0 0;
+    border-radius: 3px;
+    border: 1px solid;
+}
+
+.modal {
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 1000;
+    overflow: auto;
+    position: fixed;
+    transition: 0.3s ease all;
+}
+
+.modal.hide {
+    opacity: 0;
+    pointer-events: none;
+}
+
+.modal>.background {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #00000080;
+}
+
+.modal>.center {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+
+.card {
+    display: block;
+    margin-bottom: 1.3em;
+    padding: 1.3em;
+    background-color: #fff;
+    box-shadow: 0 1px 3px rgba(26, 26, 26, .1);
+    box-sizing: border-box;
+}
+
+.info-card {
+    max-width: 100%;
+    width: 768px;
+    height: 500px;
+    max-height: 90vh;
+    overflow-y: auto;
+}
+
+.container {
+    display: flex;
+    flex-flow: column;
+    align-items: stretch;
+    height: 100%;
+}
+
+ul.nav {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+    background-color: #333;
+}
+
+ul.nav li {
+    float: left;
+}
+
+ul.nav li a {
+    display: block;
+    color: white;
+    text-align: center;
+    padding: 14px 20px;
+    text-decoration: none;
+}
+
+ul.nav li a:hover:not(.active) {
+    background-color: #111;
+}
+
+.expanding {
+    flex: 1 1 auto;
+    min-height: 0;
+    /* height: 0; */
+    width: 100%;
+    height: 85%;
+    overflow-y: auto;
+    display: block;
+}
+
+.column {
+    float: left;
+    padding: 10px;
+    margin: 0 0 0 0;
+}
+
+.column.left {
+    width: 50%;
+}
+
+.column.right {
+    width: 45%;
+    padding: 0;
+    margin: 10px;
+    background-color: #c5dbf077;
+}
+
+.row:after {
+    content: "";
+    display: table;
+    clear: both;
+}
 
 table {
     border-collapse: collapse;
     border-spacing: 0;
 }
 
-td,
-th {
+td, th {
     padding: 0;
 }
 
@@ -20,7 +210,7 @@ th {
     border-collapse: collapse;
     border-spacing: 0;
     empty-cells: show;
-    border: 1px solid #cbcbcb;
+    border: 1px solid #c0d2e4;
     text-align: center;
 }
 
@@ -31,14 +221,13 @@ th {
     text-align: center;
 }
 
-.pure-table td,
-.pure-table th {
-    border-left: 1px solid #cbcbcb;
+.pure-table td, .pure-table th {
+    border-left: 1px solid #c0d2e4;
     border-width: 0 0 0 1px;
     font-size: inherit;
     margin: 0;
     overflow: visible;
-    padding: .5em 1em;
+    padding: .4em .4em;
 }
 
 .pure-table thead {
@@ -52,8 +241,8 @@ th {
     background-color: transparent;
 }
 
-.pure-table-bordered td {
-    border-bottom: 1px solid #cbcbcb;
+.pure-table-bordered th, .pure-table-bordered td {
+    border-bottom: 1px solid #c0d2e4;
 }
 
 .pure-table-bordered tbody>tr:last-child>td {
@@ -61,22 +250,41 @@ th {
 }
 
 .timetable {
-    margin-left: auto;
-    margin-right: auto;
-    background: #e6f3f5;
+    /* margin-left: auto; */
+    /* margin-right: auto; */
+    background: #eff5e677;
+    /* position: fixed; */
+    top: 80;
+    left: 20;
+    width: 100%;
+    /* table-layout: sticky; */
 }
+
+.timetable tr {
+    height: 4em;
+}
+
+.timetable tr td:first-child, .timetable tr th:first-child {
+    width: 9%;
+}
+
+.timetable tr td:not(td:first-child), .timetable tr th:not(th:first-child) {
+    width: 13%;
+}
+
 .session-label {
-    border: 2px solid #1bb8a3;
+    border: 2px solid #1bb8a377;
     border-radius: 8px;
-    background: #b1ebf3;
-    
+    background: #c9f7e4;
     font-size: 0.8em;
     padding: 4 4 4 4px;
 }
+
 .session-label:hover {
-    background: #9fd8df;
+    background: #c8f7eb;
     transition: 0.2s;
 }
+
 .session-label p {
     margin: 2 0 0 0em;
 }
@@ -86,8 +294,8 @@ ul.clist {
     margin-left: auto;
     margin-right: auto;
     padding: 0;
-    width: 60%; 
-    background-color: #e9e6f3;
+    /* width: 100%; */
+    background-color: #e6eaf3;
     /* height: 100%; */
     overflow: auto;
     user-select: none;
@@ -99,37 +307,42 @@ ul.clist li {
     padding: 4 4 4 4px;
     text-decoration: none;
 }
+
 ul.clist li div {
     display: block;
     padding: 8 0 8 0px;
 }
+
 ul.clist li:not(ul):hover {
-    background-color: #ccc3cc;
+    background-color: #c3c6cc;
     transition: 0.2s;
 }
+
 ul.clist li ul {
     display: block;
     color: #000;
-    background-color: #e4d0ec;
+    background-color: #d0dbec;
     margin-left: 8px;
     padding-left: 4px;
     text-decoration: none;
 }
-ul.clist li ul li {
-    
-    
-}
+
+ul.clist li ul li {}
+
 ul.clist li ul li:hover {
-    background-color: #c3b6c9;
-}
-ul.clist li ul li.selected {
-    background-color: #a873cc;
-}
-ul.clist li ul li.conflicting:not(.selected) {
-    background-color: #f15448;
+    background-color: #b6bdc9;
 }
 
-.tag-caption { /*有颜色的圆角矩形标签*/
+ul.clist li ul li.selected {
+    background-color: #52c41a;
+}
+
+ul.clist li ul li.conflicting:not(.selected) {
+    background-color: #e74c3c;
+}
+
+.tag-caption {
+    /*有颜色的圆角矩形标签*/
     display: inline-block;
     border: none;
     border-radius: 4px;
@@ -143,5 +356,14 @@ ul.clist li ul li.conflicting:not(.selected) {
 }
 
 .data-input {
-    font: 14px "Consolas"
+    font: 14px "Consolas";
+    resize: none;
+}
+
+ul.course-nav {
+    background-color: #7349e7;
+}
+
+ul.course-nav li a:hover:not(.active) {
+    background-color: #9676ec;
 }

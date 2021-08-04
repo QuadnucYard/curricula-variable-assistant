@@ -5,7 +5,7 @@
 <head>
     <title>选课！</title>
     <link href="css/style.css" rel="stylesheet">
-
+    <link href="css/normalize.css" rel="stylesheet">
     <script type="text/javascript" src="https://ajax.aspnetcdn.com/ajax/jquery/jquery-3.5.1.min.js"></script>
     <script type="text/javascript" src="currinfo.js"></script>
     <script type="text/javascript" src="curricula_variable.js"></script>
@@ -13,228 +13,82 @@
 </head>
 
 <body>
-    <div>
-        <textarea rows="10" cols="60" id="txtInput" class="data-input"></textarea>
+    <header>
+        <img src="image/logo.png" alt="Curricula Variable Assistant!" style="transform:scale(0.6); float:left;">
+        <div style="float: right">
+            <ul class="nav">
+                <li><a href="javascript: void(0)">输入</a></li>
+                <li><a href="javascript: void(0)">导入</a></li>
+                <li><a href="javascript: void(0)">导出</a></li>
+            </ul>
+        </div>
+    </header>
+    <div id="input-dialog" class="modal hide">
+        <div class="background"></div>
+        <div class="card info-card center">
+            <h3 class="cva-h3">增加数据</h3>
+            <div>
+                <textarea id="txtInput" class="data-input expanding" placeholder="JSON数据"></textarea>
+            </div>
+            <div>
+                <span style="float: right; margin-left: 10px;">
+                    <button class="cva-form-sz-middle cancel"
+                        style="border-color: #e74c3c; background-color: #e74c3c;">取消</button>
+                </span>
+                <span style="float: right">
+                    <button class="cva-form-sz-middle confirm"
+                        style="border-color: #3498db; background-color: #3498db;">确认</button>
+                </span>
+                <script>
+                    var inputMode = -1;
+                    $("ul.nav li a").eq(0).click(() => showInputDialog(0));
+                    $("ul.nav li a").eq(1).click(() => showInputDialog(1));
+                    $("ul.nav li a").eq(2).click(() => showInputDialog(2));
+                    $("button.cancel").click(() => hideInputDialog());
+                    $("button.confirm").click(()=>{
+                        switch (inputMode) {
+                            case 0: process_json($("#txtInput").val()); break;
+                            case 1: importData($("#txtInput").val()); break;
+                            case 2: $("#txtInput").val(exportData()); break;
+                        }
+                        hideInputDialog();
+                    });
+                    function showInputDialog(mode) {
+                        inputMode = mode;
+                        switch (mode) {
+                            case 0: $("#input-dialog h3").text("输入JSON数据"); break;
+                            case 1: $("#input-dialog h3").text("导入课程数据"); break;
+                            case 2: $("#input-dialog h3").text("导出课程数据"); break;
+                        }
+                        $("#input-dialog").removeClass("hide");
+                    }
+                    function hideInputDialog() {
+                        inputMode = -1;
+                        $("#input-dialog").addClass("hide");
+                    }
+                </script>
+            </div>
+        </div>
     </div>
-    <br />
-    <div>
-        <button type="button" id="btnInput">输入JSON</button>
-        <button type="button" id="btnSave">保存</button>
-        <button type="button" id="btnLoad">读取</button>
-        <button type="button" id="btnInit" onclick="initCourseList()">初始化</button>
-        <button type="button" id="btnBuildtable" onclick="buildTable()">建立课表</button>
-    </div>
-    <br />
-    <!-- <iframe id="explorer" src="http://newxk.urp.seu.edu.cn/xsxk/profile/index.html" width="600" height="400"></iframe> -->
-    <div id="timetable-area">
-        <table class="pure-table pure-table-bordered timetable">
-            <tr>
-                <th>节次/星期</th>
-                <th>星期一</th>
-                <th>星期二</th>
-                <th>星期三</th>
-                <th>星期四</th>
-                <th>星期五</th>
-                <th>星期六</th>
-                <th>星期日</th>
-            </tr>
-            <tr>
-                <td>1</td>
-                <td rowspan="2">
-                    <div class="session-label">
-                        <p>电路与电子线路(含实验)I-01</p>
-                        <p>1-16周 1-2节</p>
-                        <p>教六-202</p>
-                        <p>赵鑫泰</p>
-                    </div>
-                </td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-            </tr>
-            <tr>
-                <td>2</td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-            </tr>
-            <tr>
-                <td>3</td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-            </tr>
-            <tr>
-                <td>4</td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-            </tr>
-            <tr>
-                <td>5</td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-            </tr>
-            <tr>
-                <td>6</td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-            </tr>
-            <tr>
-                <td>7</td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-            </tr>
-            <tr>
-                <td>8</td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-            </tr>
-            <tr>
-                <td>9</td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-            </tr>
-            <tr>
-                <td>10</td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-            </tr>
-            <tr>
-                <td>11</td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-            </tr>
-            <tr>
-                <td>12</td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-            </tr>
-            <tr>
-                <td>13</td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-            </tr>
-        </table>
-    </div>
-    <div>
-        <ul class="clist">
-            <li>
-                <div>基础物理学II</div>
-                <ul>
-                    <li id="B354653-01" class="selected" onclick='selectCourse("B354653","01")'>xzh</li>
-                    <li id="B354653-02" class="" onclick="selectCourse('B354653','02')">xmw</li>
+    <div class="row">
+        <div id="timetable-area" class="column left">
+            <table class="pure-table pure-table-bordered timetable"></table>
+        </div>
+        <div class="column right">
+            <div>
+                <ul class="nav course-nav" style="width: auto;">
+                    <li><a href="javascript: void(0)">系统推荐课程</a></li>
+                    <li><a href="javascript: void(0)">体育课</a></li>
+                    <li><a href="javascript: void(0)">通选课</a></li>
                 </ul>
-            </li>
-            <li>
-                <div>基础物理学III</div>
-                <ul>
-                    <li id="B354654-01" class="selected">
-                        <span class="tag-caption">01</span>
-                        <span class="tag-caption">夏柱红</span>
-                        <span class="tag-caption">教四-104</span>
-                    </li>
-                    <li id="B354654-02" class="">hhh</li>
-                    <li id="B354654-03" class="">hgg</li>
-                </ul>
-            </li>
-            <li><a>复变函数</a></li>
-        </ul>
+            </div>
+            <ul class="clist"></ul>
+        </div>
     </div>
+    <div class="footer"></div>
     <script>
-
-        document.getElementById("btnSave").onclick = function () {
-            window.alert("save");
-            saveContent(JSON.stringify(curriculumData), "curriculumData");
-        };
-        document.getElementById("btnInput").onclick = function () {
-            process_json(document.getElementById('txtInput').value);
-        };
-        $("#btnLoad").click(()=>readData($("#txtInput").val()));
-        function buildTable() {
-            console.log("buildtable");
-            initTimetable();
-            //console.log($("div#timetable-area"));
-        }
-
+        initCourseList();
     </script>
-    <!-- <script>
-        window.onload = function () {
-            console.log($("iframe#explorer"));
-            console.log($("iframe#explorer").contentDocument);
-            console.log(document.getElementById("explorer"));
-            // var idoc=document.getElementById("explorer").contentWindow.document;
-            var idoc=document.getElementById("explorer");
-            console.log(idoc);
-            console.log(document.frames["explorer"].document);
-            //console.log(idoc.contentWindow);
-            console.log(idoc.document);
-            console.log(idoc.contentDocument);
-            // idoc.querySelector("#loginNameDiv > div > input").value="213200255"
-            console.log($("iframe#explorer").contents);
-        };
-    </script> -->
-
 </body>
 
 </html>

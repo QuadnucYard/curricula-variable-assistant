@@ -1,4 +1,3 @@
-
 const compareInt = (a, b) => a < b ? -1 : (b < a ? 1 : 0);
 
 class ClassSession {
@@ -30,7 +29,13 @@ class ClassSession {
 
     static mapDay(str) {
         const mapday = {
-            "星期一": 0, "星期二": 1, "星期三": 2, "星期四": 3, "星期五": 4, "星期六": 5, "星期日": 6
+            "星期一": 0,
+            "星期二": 1,
+            "星期三": 2,
+            "星期四": 3,
+            "星期五": 4,
+            "星期六": 5,
+            "星期日": 6
         }
         return mapday[str];
     }
@@ -42,7 +47,6 @@ class ClassSession {
             `<div class="session-label">
             <p>${curriculumDataMap[this.cid].cname}-${this.cno}</p>
             <p>${this.raw[0]}</p>
-            <p>${this.raw[1]} ${this.raw[2]}</p>
             <p>${this.raw[3]}</p>
             <p>${curriculumDataMap[this.cid].at(this.cno).teacher}</p>
         </div>`);
@@ -50,6 +54,7 @@ class ClassSession {
 }
 
 class Timetable {
+
     #choosen = null;
 
     constructor() {
@@ -74,12 +79,12 @@ class Timetable {
 
     //选课
     chooseCourse(course_id, class_id) {
-        console.log("chooseCourse",course_id, class_id);
+        console.log("chooseCourse", course_id, class_id);
         let course = curriculumDataMap[course_id];
         let subcourse = course.at(class_id);
         console.log(course);
         console.log(course.at);
-        console.log(course.tcList.find(t=>t.no==class_id));
+        console.log(course.tcList.find(t => t.no == class_id));
         console.log(subcourse);
         let sessions = this.#resolveTeachingPlace(subcourse.teachingPlace);
         if (sessions.some(t => this.checkSessionConflict(t))) return false;
@@ -112,8 +117,7 @@ class Timetable {
 
     toHtml(week) {
         return (
-            `<table class="pure-table pure-table-bordered timetable">
-            <tr>
+            `<tr>
                 <th>节次/星期</th>
                 <th>星期一</th>
                 <th>星期二</th>
@@ -131,16 +135,21 @@ class Timetable {
                         t > 0 && this.#choosen[week][u][t] == this.#choosen[week][u][t - 1] ?
                             "" : `<td rowspan="${this.#choosen[week][u][t].span}">${this.#choosen[week][u][t].toHtml()}</td>`
                 ).join("")}
-                </tr>`).join("")}
-        </table>`);
+                </tr>`).join("")}`);
     }
 
     //解析教学时间地点的字符串
     #resolveTeachingPlace(teachingPlace) {
         //console.log("resolve",teachingPlace);
         //有一个问题，周后面的内容可能会省略
-        return teachingPlace.split(",").map(str => {
-            let s = str.split(" ");
+        if (teachingPlace=="undefined") return [];
+        let sp = teachingPlace.split(",").filter(t=>t!=undefined).map(str => str.split(" "));
+        for (let i = sp.length - 1; i >= 0; i--) {
+            if (sp[i].length <= 1) sp[i][1] = sp[i + 1][1];
+            if (sp[i].length <= 2) sp[i][2] = sp[i + 1][2];
+            if (sp[i].length <= 3) sp[i][3] = sp[i + 1][3];
+        }
+        return sp.map(s => {
             let weekstr;
             let step = 1;
             if (s[0].endsWith(")")) {
@@ -179,8 +188,8 @@ function initCourseList() {
         let li = $(`<li id="${data.cid}"></li>`);
         let ul2 = data.tcList.map(t =>
             `<li id="${data.cid}-${t.no}" class="">
-                <span class="tag-caption text-center" style="background-color: #13C2C2; width: 20px">${t.no}</span>
-                <span class="tag-caption text-center" style="background-color: #52C41A; width: 50px">${t.teacher}</span>
+                <span class="tag-caption text-center" style="background-color: #13C2C2; width: 1em">${t.no}</span>
+                <span class="tag-caption text-center" style="background-color: #3498DB; width: 3em">${t.teacher}</span>
                 <span class="tag-caption" style="background-color: #F39C11">${t.teachingPlace}</span>
             </li>`).join("");
         li.append(
@@ -193,19 +202,11 @@ function initCourseList() {
     }
     $("ul.clist li div").click(function (event) { toggleCourseDisplay($(this).parent().attr("id")); });
     $("ul.clist li ul li").click(function (event) { selectCourse1(this.id); });
-    /*
-    1 B10M0100-01
-    2 B10M0100-01
-    1 B10M0100
-    外层会触发两次
-    停止传播是结果是
-    1 B10M0100-04
-    2 B10M0100-04
-    */
+    initTimetable();
 }
 
 function initTimetable() {
-    $("div#timetable-area").html(timetable.toHtml(1));
+    $("div#timetable-area table").html(timetable.toHtml(1));
 }
 
 function toggleCourseDisplay(course_id) {
@@ -247,5 +248,6 @@ function selectCourse(course_id, class_id) {
                 target.removeClass("conflicting");
         }
     }
+    initTimetable();
     //timetable.trace();
 }

@@ -19,9 +19,10 @@ function process_json(str) {
     }
     $("#txtInput").val("");
     console.log(curriculumData);
+    initCourseList();
 }
 
-function readData(str) {
+function importData(str) {
     curriculumData.length = 0;
     curriculumDataMap.clear();
     let json = JSON.parse(str);
@@ -31,6 +32,11 @@ function readData(str) {
         curriculumDataMap[x.cid] = x;
     }
     console.log(curriculumData);
+    initCourseList();
+}
+
+function exportData() {
+    return JSON.stringify(curriculumData);
 }
 
 //从json数据提出有效课程数据
