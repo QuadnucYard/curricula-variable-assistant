@@ -14,7 +14,9 @@
 
 <body>
     <header>
-        <img src="image/logo.png" alt="Curricula Variable Assistant!" style="transform:scale(0.6); float:left;">
+        <div style="display: inline-block; height: 50px;">
+            <img src="image/logo.png" alt="Curricula Variable Assistant!" style="transform:scale(0.6); float:left;">
+        </div>
         <div style="float: right">
             <ul class="nav">
                 <li><a href="javascript: void(0)">输入</a></li>
@@ -26,11 +28,11 @@
     <div id="input-dialog" class="modal hide">
         <div class="background"></div>
         <div class="card info-card center">
-            <h3 class="cva-h3">增加数据</h3>
+            <h3 class="cva-h3"></h3>
             <div>
                 <textarea id="txtInput" class="data-input expanding" placeholder="JSON数据"></textarea>
             </div>
-            <div>
+            <div style="margin-top: 5px;">
                 <span style="float: right; margin-left: 10px;">
                     <button class="cva-form-sz-middle cancel"
                         style="border-color: #e74c3c; background-color: #e74c3c;">取消</button>
@@ -39,39 +41,89 @@
                     <button class="cva-form-sz-middle confirm"
                         style="border-color: #3498db; background-color: #3498db;">确认</button>
                 </span>
-                <script>
-                    var inputMode = -1;
-                    $("ul.nav li a").eq(0).click(() => showInputDialog(0));
-                    $("ul.nav li a").eq(1).click(() => showInputDialog(1));
-                    $("ul.nav li a").eq(2).click(() => showInputDialog(2));
-                    $("button.cancel").click(() => hideInputDialog());
-                    $("button.confirm").click(()=>{
-                        switch (inputMode) {
-                            case 0: process_json($("#txtInput").val()); break;
-                            case 1: importData($("#txtInput").val()); break;
-                            case 2: $("#txtInput").val(exportData()); break;
-                        }
-                        hideInputDialog();
-                    });
-                    function showInputDialog(mode) {
-                        inputMode = mode;
-                        switch (mode) {
-                            case 0: $("#input-dialog h3").text("输入JSON数据"); break;
-                            case 1: $("#input-dialog h3").text("导入课程数据"); break;
-                            case 2: $("#input-dialog h3").text("导出课程数据"); break;
-                        }
-                        $("#input-dialog").removeClass("hide");
-                    }
-                    function hideInputDialog() {
-                        inputMode = -1;
-                        $("#input-dialog").addClass("hide");
-                    }
-                </script>
+
             </div>
         </div>
+        <script>
+            var inputMode = -1;
+            $("ul.nav li a").eq(0).click(() => showInputDialog(0));
+            $("ul.nav li a").eq(1).click(() => showInputDialog(1));
+            $("ul.nav li a").eq(2).click(() => showInputDialog(2));
+            $("button.cancel").click(() => hideInputDialog());
+            $("button.confirm").click(() => {
+                switch (inputMode) {
+                    case 0: process_json($("#txtInput").val()); break;
+                    case 1: importData($("#txtInput").val()); break;
+                }
+                hideInputDialog();
+            });
+            function showInputDialog(mode) {
+                inputMode = mode;
+                switch (mode) {
+                    case 0: $("#input-dialog h3").text("输入原始JSON数据"); break;
+                    case 1: $("#input-dialog h3").text("导入课程数据"); break;
+                    case 2: $("#input-dialog h3").text("导出课程数据"); $("#txtInput").val(exportData()); break;
+                }
+                $("#input-dialog").removeClass("hide");
+            }
+            function hideInputDialog() {
+                inputMode = -1;
+                $("#input-dialog").addClass("hide");
+                $("#txtInput").val("");
+            }
+        </script>
     </div>
     <div class="row">
         <div id="timetable-area" class="column left">
+            <div style="position: relative; background-color: #edf0e5; padding-top: 20; user-select: none;">
+                <style>
+                    .bh-h2,
+                    .h2 {
+                        font-size: 20px;
+                        line-height: 20px;
+                    }
+
+                    .bh-color-primary {
+                        color: #1486e4 !important;
+                    }
+
+                    .bh-ph-4 {
+                        padding-left: 4px !important;
+                        padding-right: 4px !important;
+                    }
+
+                    .bh-l-inline {
+                        display: inline-block;
+                    }
+
+                    .arrow {
+                        cursor: pointer;
+                        border: solid 1px #2196f3;
+                        border-radius: 8px;
+                        color: #2196f3;
+                        box-sizing: border-box;
+                    }
+                </style>
+                <div style="width: 300px; margin: 0 auto; padding-bottom: 10px;  text-align: center;">
+                    <div class="bh-l-inline bh-color-primary bh-h2" style="margin-bottom: 0.5em;">
+                        2021-2022-1学期课程表
+                    </div>
+                    <div style="display: block;">
+                        <b class="arrow arrow-left">&thinsp;&lt;&thinsp;</b>
+                        <span class="bh-l-inline bh-color-primary bh-ph-4">
+                            第
+                            <b class="h2 bh-color-primary bh-l-inline bh-ph-4" id="zkbzc" style="width: 1.2em;">1</b>
+                            周
+                        </span>
+                        <b class="arrow arrow-right">&thinsp;&gt;&thinsp;</b>
+                    </div>
+                </div>
+                <div
+                    style="color: #2196F3; cursor: pointer; position: absolute; right: 10px; top: 2em; display: block;">
+                    周课表</div>
+                <div style="color: #2196F3; cursor: pointer; position: absolute; right: 10px; top: 2em; display: none;">
+                    学期课表</div>
+            </div>
             <table class="pure-table pure-table-bordered timetable"></table>
         </div>
         <div class="column right">
@@ -82,12 +134,40 @@
                     <li><a href="javascript: void(0)">通选课</a></li>
                 </ul>
             </div>
-            <ul class="clist"></ul>
+            <ul class="clist mostly-customized-scrollbar" style="height: 60em;"></ul>
         </div>
     </div>
     <div class="footer"></div>
     <script>
+        var curWeek = 1;
+        var scheduleShownMode=0;
+        $("#timetable-area .arrow-left").click(() => {
+            if (curWeek == 1) return;
+            updateTimetable(--curWeek);
+            $("#zkbzc").text(curWeek);
+        });
+        $("#timetable-area .arrow-right").click(() => {
+            if (curWeek == 16) return;
+            updateTimetable(++curWeek);
+            $("#zkbzc").text(curWeek);
+        });
         initCourseList();
+        $("#timetable-area>div>div").eq(1).click(() => {
+            //从周课表切换到学期课表
+            scheduleShownMode=1;
+            $("#timetable-area>div>div>div").eq(1).css("visibility", "hidden");
+            $("#timetable-area>div>div").eq(1).css("display", "none");
+            $("#timetable-area>div>div").eq(2).css("display", "block");
+            updateTimetable(0);
+        });
+        $("#timetable-area>div>div").eq(2).click(() => {
+            //从学期课表切换到周课表
+            scheduleShownMode=0;
+            updateTimetable(curWeek);
+            $("#timetable-area>div>div>div").eq(1).css("visibility", "");
+            $("#timetable-area>div>div").eq(2).css("display", "none");
+            $("#timetable-area>div>div").eq(1).css("display", "block");
+        });
     </script>
 </body>
 

@@ -9,7 +9,7 @@ function process_json(str) {
     } else {
         data = json;
     }
-    console.log(data);
+    //console.log(data);
     for (let p of data) {
         if (curriculumDataMap.has(p["KCH"])) continue;
         let x = createCourseData(p);
@@ -18,7 +18,7 @@ function process_json(str) {
         //console.log(curriculumData[curriculumData.length-1]);
     }
     $("#txtInput").val("");
-    console.log(curriculumData);
+    //console.log(curriculumData);
     initCourseList();
 }
 
@@ -31,7 +31,7 @@ function importData(str) {
         curriculumData.push(x);
         curriculumDataMap[x.cid] = x;
     }
-    console.log(curriculumData);
+    //console.log(curriculumData);
     initCourseList();
 }
 
