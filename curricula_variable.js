@@ -275,7 +275,7 @@ function selectCourse1(course) {
 
 function selectCourse(course_id, class_id) {
     //console.log("selectCourse", course_id, class_id);
-    let target = $(format("li#{0}-{1}", course_id, class_id));
+    let target =$(`li#${course_id}-${class_id}`);
     var selection = $(`li[id^='${course_id}'][class*='selected']`).attr("id");
     if (selection != undefined) timetable.dropCourse(...selection.split("-"));
     if (!target.hasClass("selected")) {
