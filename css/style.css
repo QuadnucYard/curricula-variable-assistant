@@ -341,8 +341,12 @@ ul.clist li ul li.selected {
     background-color: #7ed155;
 }
 
-ul.clist li ul li.conflicting:not(.selected) {
+ul.clist li ul li.conflicting:not(.selected):not(.pseudo-conflicting) {
     background-color: #d95f52;
+}
+
+ul.clist li ul li.pseudo-conflicting {
+    background-color: #d9d052;
 }
 
 .tag-caption {
@@ -397,4 +401,40 @@ ul.course-nav li a:hover:not(.active) {
 .mostly-customized-scrollbar::-webkit-scrollbar-thumb {
     border-radius: 4px;
     background: #999;
+}
+
+
+.tooltip {
+	position: relative;
+	display: inline-block;
+}
+
+.tooltip .tooltiptext {
+	visibility: hidden;
+	width: auto;
+	background-color: #000000bb;
+	color: #fff;
+	text-align: center;
+	border-radius: 6px;
+	padding: 5px 5px;
+	position: absolute;
+	z-index: 1;
+	top: -150%;
+	left: 50%;
+	margin-left: -60px;
+}
+
+.tooltip .tooltiptext::after {
+	content: " ";
+	position: absolute;
+	top: 100%; /* 提示工具底部 */
+	left: 50%;
+	margin-left: -5px;
+	border-width: 5px;
+	border-style: solid;
+	border-color: #000000bb transparent transparent transparent;
+}
+
+.tooltip:hover .tooltiptext {
+	visibility: visible;
 }
