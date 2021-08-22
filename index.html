@@ -1,15 +1,16 @@
 <html>
 
-
-
 <head>
     <title>选课！</title>
     <link href="css/style.css" rel="stylesheet">
     <link href="css/normalize.css" rel="stylesheet">
-    <script type="text/javascript" src="https://ajax.aspnetcdn.com/ajax/jquery/jquery-3.5.1.min.js"></script>
-    <script type="text/javascript" src="currinfo.js"></script>
-    <script type="text/javascript" src="curricula_variable.js"></script>
-    <script type="text/javascript" src="utils.js"></script>
+    <script src="https://ajax.aspnetcdn.com/ajax/jquery/jquery-3.5.1.min.js"></script>
+    <!-- <script src="https://unpkg.com/axios/dist/axios.min.js"></script> -->
+    <script src="currinfo.js"></script>
+    <script src="curricula_variable.js"></script>
+    <script src="utils.js"></script>
+    <script src="system_preset.js"></script>
+    <script src="curricula_preset.js"></script>
 </head>
 
 <body>
@@ -73,74 +74,274 @@
             }
         </script>
     </div>
-    <div class="row">
-        <div id="timetable-area" class="column left">
-            <div style="position: relative; background-color: #edf0e5; padding-top: 20; user-select: none;">
-                <style>
-                    .bh-h2,
-                    .h2 {
-                        font-size: 20px;
-                        line-height: 20px;
-                    }
-
-                    .bh-color-primary {
-                        color: #1486e4 !important;
-                    }
-
-                    .bh-ph-4 {
-                        padding-left: 4px !important;
-                        padding-right: 4px !important;
-                    }
-
-                    .bh-l-inline {
-                        display: inline-block;
-                    }
-
-                    .arrow {
-                        cursor: pointer;
-                        border: solid 1px #2196f3;
-                        border-radius: 8px;
-                        color: #2196f3;
-                        box-sizing: border-box;
-                    }
-                </style>
-                <div style="width: 300px; margin: 0 auto; padding-bottom: 10px;  text-align: center;">
-                    <div class="bh-l-inline bh-color-primary bh-h2" style="margin-bottom: 0.5em;">
-                        2021-2022-1学期课程表
-                    </div>
-                    <div style="display: block;">
-                        <b class="arrow arrow-left">&thinsp;&lt;&thinsp;</b>
-                        <span class="bh-l-inline bh-color-primary bh-ph-4">
-                            第
-                            <b class="h2 bh-color-primary bh-l-inline bh-ph-4" id="zkbzc" style="width: 1.2em;">1</b>
-                            周
-                        </span>
-                        <b class="arrow arrow-right">&thinsp;&gt;&thinsp;</b>
-                    </div>
-                </div>
-                <div
-                    style="color: #2196F3; cursor: pointer; position: absolute; right: 10px; top: 2em; display: block;">
-                    周课表</div>
-                <div style="color: #2196F3; cursor: pointer; position: absolute; right: 10px; top: 2em; display: none;">
-                    学期课表</div>
-            </div>
-            <table class="pure-table pure-table-bordered timetable"></table>
-        </div>
-        <div class="column right">
+    <div class="tab-area">
+        <div id="tab-preset" style>
             <div>
-                <ul class="nav course-nav" style="width: auto;">
-                    <li><a href="javascript: void(0)">系统推荐课程</a></li>
-                    <li><a href="javascript: void(0)">体育课</a></li>
-                    <li><a href="javascript: void(0)">通选课</a></li>
+                <label>预设</label>
+                <select id="preset-selector">
+                </select>
+                <button id="btn-edit-preset">编辑预设</button>
+                <button id="btn-save-preset">保存预设</button>
+
+            </div>
+            <div>
+                <nav>
+                    <span>系统推荐课程</span>
+                    <span>体育课</span>
+                    <span>通选课</span>
+                </nav>
+                <ul id="preset-course-list" style="line-height: 160%;">
+                    <li data-cid="B07M4010">
+                        <div>
+                            <span>B07M4010</span>
+                            <span>复变函数</span>
+                            <span>数学学院</span>
+                            <span>必修</span>
+                        </div>
+                        <ul>
+                            <li data-cno="01">
+                                <span>01</span>
+                                <span>王海兵</span>
+                                <span>1-16周 星期五 3-4节 教四-103</span>
+                            </li>
+                            <li data-cno="02">
+                                <span>02</span>
+                                <span>陈文彦</span>
+                                <span>1-16周 星期五 3-4节 教三-103</span>
+                            </li>
+                            <div>
+                                <input data-cno placeholder="编号" style="width: 60;">
+                                <input data-teacher placeholder="教师" style="width: 100;">
+                                <input data-place placeholder="课程时间地点" style="width: 400;">
+                                <button>增加</button>
+                            </div>
+                        </ul>
+                    </li>
+                    <div>
+                        <label style="display: block;">添加课程</label>
+                        <div>
+                            <label>课程号</label>
+                            <input type="text" data-cid value="" style="width: 100;">
+                            <label>课程名</label>
+                            <input type="text" data-cname value="" style="width: 200;">
+                            <label>开课单位</label>
+                            <input type="text" data-cunit value="" style="width: 100;">
+                            <label>类型</label>
+                            <select data-ctype>
+                                <option>必修</option>
+                                <option>任选</option>
+                                <option>限选</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label>学分</label>
+                            <input type="text" data-credit value="" style="width: 60;">
+                            <label>学时</label>
+                            <input type="text" data-hours value="" style="width: 60;">
+                        </div>
+                        <button>确定</button>
+                    </div>
                 </ul>
             </div>
-            <ul class="clist mostly-customized-scrollbar" style="height: 60em;"></ul>
+
+            <div id="preset-dialog" class="modal hide">
+                <div class="background"></div>
+                <div class="card info-card center">
+                    <h3 class="cva-h3">编辑预设</h3>
+
+                    <div>
+                        <label>系统预设</label>
+                        <select id="editor-select-system-preset"></select>
+                        <button id="btn-import-system-preset">导入预设</button>
+                    </div>
+                    <div>
+                        <label>用户预设</label>
+                        <select id="editor-select-user-preset"></select>
+                        <button id="btn-import-user-preset">导入预设</button>
+                        <button id="btn-export-user-preset">导出预设</button>
+                        <button id="btn-save-user-preset">保存预设</button>
+                        <button id="btn-remove-user-preset">删除预设</button>
+                    </div>
+                    <hr>
+                    <div>
+                        <input type="text" id="txt-preset-name">
+                        <button id="btn-create-user-preset">新建预设</button>
+                        <nav>
+                            <span>推荐课程</span>
+                            <span>体育课</span>
+                            <span>通选课</span>
+                        </nav>
+                        <div>
+                            <textarea class="data-input" spellcheck="false" style="height: 100px; width: 100%;"></textarea>
+                            <textarea class="data-input" spellcheck="false" style="height: 100px; width: 100%; display: none;"></textarea>
+                            <textarea class="data-input" spellcheck="false" style="height: 100px; width: 100%; display: none;"></textarea>
+                        </div>
+                    </div>
+                    <hr>
+                    <div>
+                        <label style="display: block;">导入/导出</label>
+                        <textarea id="txt-preset" class="data-input" spellcheck="false" style="height: 150px; width: 100%; "></textarea>
+                    </div>
+                    <div style="margin-top: 5px;">
+                        <span style="float: right; margin-left: 10px;">
+                            <button class="cva-form-sz-middle cancel"
+                                style="border-color: #e74c3c; background-color: #e74c3c;">取消</button>
+                        </span>
+                        <span style="float: right">
+                            <button class="cva-form-sz-middle confirm"
+                                style="border-color: #3498db; background-color: #3498db;">确认</button>
+                        </span>
+                    </div>
+                </div>
+                <script>
+                    // Load system presets
+                    $("#editor-select-system-preset").html(
+                        systemPresets.map(t => `<option>${t.name}</option>`).join("")
+                    );
+                    // Import preset
+                    $("#btn-import-system-preset").click(function () {
+                        let selection = $("#editor-select-system-preset").children('option:selected')
+                        let preset = systemPresets[selection.index()];
+                        PresetManager.add(preset);
+                    });
+                    // Export preset
+                    $("#btn-export-user-preset").click(function () {
+                        $("#txt-preset").text(JSON.stringify(curPreset));
+                    });
+                    // Create preset
+                    $("#btn-create-user-preset").click(function () {
+                        let inputJson=$("#preset-dialog .card div > div > textarea");
+                        let preset=new CurriculaPreset($("#txt-preset-name").val());
+                        preset.TJKC=CurriculaPreset.parseTJKC($(inputJson[0]).val());
+                        preset.TYKC=CurriculaPreset.parseTYKC($(inputJson[1]).val());
+                        preset.XGKC=CurriculaPreset.parseXGKC($(inputJson[2]).val());
+                        PresetManager.add(preset);
+                        $("#txt-preset-name").val("");
+                    });
+                    // Remove preset
+                    $("#btn-remove-user-preset").click(function () {
+                        PresetManager.remove(curPreset);
+                    });
+
+                    // Cancel
+                    $("#preset-dialog button.cancel").click(function () {
+                        $("#preset-dialog").addClass("hide");
+                    });
+                    // Confirm
+                    $("#preset-dialog button.confirm").click(function () {
+                        $("#preset-dialog").addClass("hide");
+                        PresetManager.saveUserPresets();
+                    });
+                    // Nav
+                    $("#preset-dialog div > nav > span").click(function() {
+                        let target=$(`#preset-dialog .card div > div > textarea:eq(${$(this).index()})`);
+                        target.css("display", "");
+                        target.siblings().css("display", "none");
+                    })
+                </script>
+            </div>
+
+            <script>
+
+                // Open editor
+                $("#btn-edit-preset").click(function () {
+                    $("#preset-dialog").removeClass("hide");
+                });
+
+                // Switch category
+                $("#tab-preset > div > nav > span").click(function () {
+                    let index = $(this).index();
+                    //TODO 获取当前的preset
+                    if (index == 0) PresetManager.show(curPreset, CourseCategory.TJKC);
+                    else if (index == 1) PresetManager.show(curPreset, CourseCategory.TYKC);
+                    else if (index == 2) PresetManager.show(curPreset, CourseCategory.XGKC);
+                })
+
+                // Select preset
+                $("#preset-selector").change(function () {
+                    PresetManager.show(presets[$(this).children('option:selected').index()]);
+                });
+
+                PresetManager.loadUserPresets();
+            </script>
+        </div>
+        <div id="tab-schedule" style="display: none;">
+            <div class="row">
+                <div id="timetable-area" class="column left">
+                    <div style="position: relative; background-color: #edf0e5; padding-top: 20; user-select: none;">
+                        <style>
+                            .bh-h2,
+                            .h2 {
+                                font-size: 20px;
+                                line-height: 20px;
+                            }
+
+                            .bh-color-primary {
+                                color: #1486e4 !important;
+                            }
+
+                            .bh-ph-4 {
+                                padding-left: 4px !important;
+                                padding-right: 4px !important;
+                            }
+
+                            .bh-l-inline {
+                                display: inline-block;
+                            }
+
+                            .arrow {
+                                cursor: pointer;
+                                border: solid 1px #2196f3;
+                                border-radius: 8px;
+                                color: #2196f3;
+                                box-sizing: border-box;
+                            }
+                        </style>
+                        <div style="width: 300px; margin: 0 auto; padding-bottom: 10px;  text-align: center;">
+                            <div class="bh-l-inline bh-color-primary bh-h2" style="margin-bottom: 0.5em;">
+                                2021-2022-1学期课程表
+                            </div>
+                            <div style="display: block;">
+                                <b class="arrow arrow-left">&thinsp;&lt;&thinsp;</b>
+                                <span class="bh-l-inline bh-color-primary bh-ph-4">
+                                    第
+                                    <b class="h2 bh-color-primary bh-l-inline bh-ph-4" id="zkbzc"
+                                        style="width: 1.2em;">1</b>
+                                    周
+                                </span>
+                                <b class="arrow arrow-right">&thinsp;&gt;&thinsp;</b>
+                            </div>
+                        </div>
+                        <div
+                            style="color: #2196F3; cursor: pointer; position: absolute; right: 10px; top: 2em; display: block;">
+                            周课表</div>
+                        <div
+                            style="color: #2196F3; cursor: pointer; position: absolute; right: 10px; top: 2em; display: none;">
+                            学期课表</div>
+                    </div>
+                    <table class="pure-table pure-table-bordered timetable"></table>
+                </div>
+                <div class="column right">
+                    <div>
+                        <ul class="nav course-nav" style="width: auto;">
+                            <li><a href="javascript: void(0)">系统推荐课程</a></li>
+                            <li><a href="javascript: void(0)">体育课</a></li>
+                            <li><a href="javascript: void(0)">通选课</a></li>
+                        </ul>
+                    </div>
+                    <ul class="clist mostly-customized-scrollbar" style="height: 60em;"></ul>
+                </div>
+            </div>
         </div>
     </div>
-    <div class="footer"></div>
+
+    <div class="footer">
+        <!-- <input type="text" id="txtCaptcha" />
+        <button id="btnSubmit" >Submit</button> -->
+    </div>
     <script>
         var curWeek = 1;
-        var scheduleShownMode=0;
+        var scheduleShownMode = 0;
         $("#timetable-area .arrow-left").click(() => {
             if (curWeek == 1) return;
             updateTimetable(--curWeek);
@@ -154,7 +355,7 @@
         initCourseList();
         $("#timetable-area>div>div").eq(1).click(() => {
             //从周课表切换到学期课表
-            scheduleShownMode=1;
+            scheduleShownMode = 1;
             $("#timetable-area>div>div>div").eq(1).css("visibility", "hidden");
             $("#timetable-area>div>div").eq(1).css("display", "none");
             $("#timetable-area>div>div").eq(2).css("display", "block");
@@ -162,12 +363,51 @@
         });
         $("#timetable-area>div>div").eq(2).click(() => {
             //从学期课表切换到周课表
-            scheduleShownMode=0;
+            scheduleShownMode = 0;
             updateTimetable(curWeek);
             $("#timetable-area>div>div>div").eq(1).css("visibility", "");
             $("#timetable-area>div>div").eq(2).css("display", "none");
             $("#timetable-area>div>div").eq(1).css("display", "block");
         });
+
+        // let postdata = {
+        //     teachingClassType: "TJKC",
+        //     pageNumber: 1,
+        //     pageSize: 1000,
+        //     orderBy: ""
+        // }
+        // axios.post("http://newxk.urp.seu.edu.cn/xsxk/auth/captcha", postdata).then(function (e) {
+        //     //console.log(e.data);
+        //     console.log(e.data.data.uuid);
+        //     document.uuid=e.data.data.uuid;
+        //     $(".footer").append(`<img src="${e.data.data.captcha}" />`);
+        // });
+        // $("#btnSubmit").click((e)=>{
+        //     let postdata={
+        //         loginname: "213200255",
+        //         password: "qxaNHoMTbKkbL623kTHbXA==",
+        //         captcha: $("#txtCaptcha").val(),
+        //         uuid: document.uuid
+        //     };
+        //     axios.post("http://newxk.urp.seu.edu.cn/xsxk/auth/login", postdata).then(function (e) {
+        //         console.log(e);
+        //     });
+        // });
+        // axios.post("http://newxk.urp.seu.edu.cn/xsxk/elective/clazz/list", postdata).then(function (e) {
+        //     var a = e.data;
+        //     console.log(e);
+        //     // if (a && 200 == a.code) {
+        //     // 	if (s.catchCourseList = a.data.rows, t) {
+        //     // 		if (s.catchCourseList.length > 0) for (var i = 0; i < s.catchCourseList.length; i++) s.courseList.push(s.catchCourseList[i])
+        //     // 	} else {
+        //     // 		var r = s.pubParam.pageNumber % s.pubParam.pageCacheNumber;
+        //     // 		0 == r && (r = s.pubParam.pageCacheNumber);
+        //     // 		for (var c = s.pubParam.pageSize * (r - 1), o = s.pubParam.pageSize * r, l = c; l < o && s.catchCourseList[l]; l++) s.courseList.push(s.catchCourseList[l])
+        //     // 	}
+        //     // 	s.pubParam.totalNumber = a.data.total,
+        //     // 		s.pubParam.isScrolling = !1
+        //     // } else s.pubParam.isScrolling = !1
+        // });
     </script>
 </body>
 
