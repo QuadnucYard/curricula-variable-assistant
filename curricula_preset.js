@@ -59,7 +59,10 @@ class PresetManager {
         $("#editor-select-user-preset").append(`<option>${preset.name}</option>`)
         $("#preset-selector").append(`<option>${preset.name}</option>`)
         $("#editor-select-user-preset").val(preset.name);
-        PresetManager.show(preset);
+        this.show(preset);
+        $(".preset-options").html(
+            presets.map(t => `<a>${t.name}</a>`).join("")
+        )
     }
 
     static remove(preset) {
@@ -80,6 +83,15 @@ class PresetManager {
         }
     }
 
+    static switchGlobalPresetByIndex(index) {
+        let preset=presets[index];
+        $(".global-preset-select > div > span:eq(1)").text(preset.name);
+    }
+
+    static switchGlobalPreset() {
+
+    }
+
     //显示预设，具体到课程类别
     //这里的 preset 是 courseData 的数组
     static show(preset, category = CourseCategory.TJKC) {
@@ -98,11 +110,11 @@ class PresetManager {
         curPresetCategory = category;
         let subpreset = preset[category];
         //需要针对类别讨论
-        $("#preset-course-list > li").remove();
+        $("#preset-course-list > div.list-item").remove();
         if (category != CourseCategory.XGKC) {
-            $("#preset-course-list > div").before(
+            $("#preset-course-list > div:not(.list-item)").before(
                 `${subpreset.map(t =>
-                    `<li data-cid="${t.cid}">
+                    `<div class="list-item" data-cid="${t.cid}">
                         <div>
                             <span>${t.cid}</span>
                             <span>${t.cname}</span>
@@ -110,28 +122,23 @@ class PresetManager {
                             <span>${t.cunit}</span>
                             <span>${t.ctype}</span>
                         </div>
-                        <ul>
+                        <div class="list">
                             ${t.tcList.map(u =>
-                        `<li data-cno="${u.no}">
+                        `<div class="list-item" data-cno="${u.no}">
                                 <span>${u.no}</span>
                                 ${category == CourseCategory.TYKC ? `<span>${u.sportName}</span>` : ""}
                                 <span>${u.teacher}</span>
                                 <span>${u.teachingPlace}</span>
-                            </li>`).join("")}
-                            <div>
-                                <input data-cno placeholder="编号" style="width: 60;">
-                                <input data-teacher placeholder="教师" style="width: 100;">
-                                <input data-place placeholder="课程时间地点" style="width: 400;">
-                                <button>增加</button>
-                            </div>
-                        </ul>
-                    </li>`
+                            </div>`).join("")}
+                            ${$("template[data-template='preset-add-class']").html()}
+                        </div>
+                    </div>`
                 ).join("")}`
             );
         } else {
-            $("#preset-course-list > div").before(
+            $("#preset-course-list > div:not(.list-item)").before(
                 `${subpreset.map(t =>
-                    `<li data-cid="${t.cid}">
+                    `<div class="list-item" data-cid="${t.cid}">
                         <div>
                             <span>${t.cid}</span>
                             <span>${t.cname}</span>
@@ -141,19 +148,19 @@ class PresetManager {
                             <span>${t.teacher}</span>
                             <span>${t.teachingPlace}</span>
                         </div>
-                    </li>`
+                    </div>`
                 ).join("")}`
             );
         }
         //点击事件
-        $("#preset-course-list > li > ul > div > button").click(function () {
+        $("#preset-course-list > div.list-item > div.list > div > button").click(function () {
             let inputData = $(this).parent();
             $(this).parent().before(
-                `<li data-cno="${inputData.children("input[data-cno]").val()}">
+                `<div class="list-item" data-cno="${inputData.children("input[data-cno]").val()}">
                 <span>${inputData.children("input[data-cno]").val()}</span>
                 <span>${inputData.children("input[data-teacher]").val()}</span>
                 <span>${inputData.children("input[data-place]").val()}</span>
-            </li>`
+            </div>`
             );
             //还要处理数据
         });
@@ -161,22 +168,22 @@ class PresetManager {
             let inputData = $(this).parent();
             console.log(inputData)
             $(this).parent().before(
-                `<li data-cid="${inputData.find("input[data-cid]").val()}">
+                `<div class="list-item" data-cid="${inputData.find("input[data-cid]").val()}">
             <div>
                 <span>${inputData.find("div input[data-cid]").val()}</span>
                 <span>${inputData.find("input[data-cname]").val()}</span>
                 <span>${inputData.find("input[data-cunit]").val()}</span>
                 <span>${inputData.find("select[data-ctype]").val()}</span>
             </div>
-            <ul>
+            <div class="list">
                 <div>
                     <input data-cno placeholder="编号" style="width: 60;">
                     <input data-teacher placeholder="教师" style="width: 100;">
                     <input data-place placeholder="课程时间地点" style="width: 400;">
                     <button>增加</button>
                 </div>
-            </ul>                    
-        </li>`
+            </div>                    
+        </div>`
             );
         });
     }
@@ -198,6 +205,9 @@ class PresetManager {
             $("#editor-select-user-preset").html(
                 presets.map(t => `<option>${t.name}</option>`).join("")
             );
+            $(".preset-options").html(
+                presets.map(t => `<a>${t.name}</a>`).join("")
+            )
         } else {
             presets = [];
         }

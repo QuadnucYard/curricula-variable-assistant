@@ -15,17 +15,76 @@
 
 <body>
     <header>
+        <style>
+            .global-preset-select {
+                user-select: none;
+            }
+
+            .global-preset-select span {
+                display: inline-block;
+                width: 80px;
+                height: 100%;
+                color: #edf0e5;
+                background-color: rgb(17, 65, 109);
+                text-align: center;
+                line-height: 50px;
+                user-select: none;
+            }
+
+            .global-preset-select span:nth-child(2) {
+                color: #e74c3c;
+                cursor: pointer;
+            }
+
+            .preset-options {
+                position: absolute;
+                right: 0;
+                margin-top: .2em;
+                padding: .3em;
+                width: 10em;
+                background: #fff;
+                border-radius: 5px;
+                border: 1px solid rgba(0, 0, 0, .2);
+                color: #333;
+            }
+
+            .preset-options a {
+                display: block;
+                padding: .3em;
+                color: #333;
+            }
+
+            .preset-options a:hover {
+                background-color: rgb(190, 190, 190);
+            }
+
+            .preset-options.hide {
+                display: none;
+            }
+        </style>
         <div style="display: inline-block; height: 50px;">
-            <img src="image/logo.png" alt="Curricula Variable Assistant!" style="transform:scale(0.6); float:left;">
+            <!-- <img src="image/logo.png" alt="Curricula Variable Assistant!" style="transform:scale(0.6); float:left;"> -->
         </div>
-        <div style="float: right">
-            <ul class="nav">
-                <li><a href="javascript: void(0)">输入</a></li>
-                <li><a href="javascript: void(0)">导入</a></li>
-                <li><a href="javascript: void(0)">导出</a></li>
-            </ul>
+        <div class="global-preset-select" style="float: right">
+            <div>
+                <span>当前预设</span>
+                <span class="popup-button">NULL</span>
+            </div>
+            <div class="preset-options popup hide">
+                <a>第一个</a>
+                <a>第二个</a>
+            </div>
+            <script>
+                $(".global-preset-select > div > span:eq(1)").click(function (e) {
+                    $(".preset-options").toggleClass("hide");
+                });
+                $(".popup-button").click(function (e) {
+                    e.stopPropagation ? e.stopPropagation() : e.cancelBubble = true;
+                });
+            </script>
         </div>
     </header>
+    <!-- deprecated -->
     <div id="input-dialog" class="modal hide">
         <div class="background"></div>
         <div class="card info-card center">
@@ -45,88 +104,134 @@
 
             </div>
         </div>
-        <script>
-            var inputMode = -1;
-            $("ul.nav li a").eq(0).click(() => showInputDialog(0));
-            $("ul.nav li a").eq(1).click(() => showInputDialog(1));
-            $("ul.nav li a").eq(2).click(() => showInputDialog(2));
-            $("button.cancel").click(() => hideInputDialog());
-            $("button.confirm").click(() => {
-                switch (inputMode) {
-                    case 0: process_json($("#txtInput").val()); break;
-                    case 1: importData($("#txtInput").val()); break;
-                }
-                hideInputDialog();
-            });
-            function showInputDialog(mode) {
-                inputMode = mode;
-                switch (mode) {
-                    case 0: $("#input-dialog h3").text("输入原始JSON数据"); break;
-                    case 1: $("#input-dialog h3").text("导入课程数据"); break;
-                    case 2: $("#input-dialog h3").text("导出课程数据"); $("#txtInput").val(exportData()); break;
-                }
-                $("#input-dialog").removeClass("hide");
-            }
-            function hideInputDialog() {
-                inputMode = -1;
-                $("#input-dialog").addClass("hide");
-                $("#txtInput").val("");
-            }
-        </script>
     </div>
     <div class="tab-area">
         <div id="tab-preset" style>
-            <div>
-                <label>预设</label>
-                <select id="preset-selector">
-                </select>
-                <button id="btn-edit-preset">编辑预设</button>
-                <button id="btn-save-preset">保存预设</button>
+            <style>
+                #tab-preset {
+                    margin: auto;
+                    width: 65%;
+                    background-color: rgb(253, 253, 253);
+                }
 
+                #tab-preset div.toolbar {
+                    display: flex;
+                    flex-direction: column;
+                    position: fixed;
+                    margin-left: -3em;
+                    margin-top: 2em;
+                }
+
+                #tab-preset div.toolbar button {
+                    width: 40px;
+                    height: 40px;
+                    margin-bottom: .4em;
+                }
+
+                #tab-preset nav.tab-bar {
+                    text-align: center;
+                    margin-top: 1em;
+                    margin-bottom: .5em;
+                    user-select: none;
+                }
+
+                #tab-preset nav.tab-bar>span {
+                    width: 8em;
+                    display: inline-block;
+                    background-color: #f8f8f8;
+                    text-align: center;
+                    line-height: 2.5em;
+                    border-top: 2px solid #d1d1d187;
+                    border-bottom: 1px solid #d1d1d187;
+                    cursor: pointer;
+                }
+
+                #tab-preset nav.tab-bar>span:hover {
+                    background-color: #ebebeb;
+                    transition: 0.3s;
+                }
+
+                #tab-preset nav.tab-bar>span[current] {
+                    background-color: #e0e0e0;
+                    transition: 0.2s;
+                }
+
+                #preset-course-list {
+                    font-size: 90%;
+                }
+
+                #preset-course-list>div {
+                    display: block;
+                    box-sizing: border-box;
+                    box-shadow: 0 1px 3px #33333342;
+                    margin: 0em .4em .3em .4em;
+                    padding: .4em .8em .4em .8em;
+                }
+
+                #preset-course-list>div.list-item>div.list {
+                    margin-left: 2em;
+                }
+
+                #preset-course-list>div.list-item>div.list>div.list-item {
+                    border-bottom: 1px solid #e8e8e8;
+                    line-height: 150%;
+                }
+
+                #preset-course-list>div.list-item>div.list>div.form {
+                    display: flex;
+                    margin-top: .5em;
+                }
+            </style>
+            <!-- 这里考虑居中显示 -->
+            <div class="toolbar">
+                <button id="btn-edit-preset" title="预设编辑器"
+                    style="background-image: url('image/Editor_16x.svg');"></button>
+                <button title="保存当前预设" style="background-image: url('image/Save_16x.svg');"></button>
             </div>
             <div>
-                <nav>
-                    <span>系统推荐课程</span>
+                <nav class="tab-bar">
+                    <span current>系统推荐课程</span>
                     <span>体育课</span>
                     <span>通选课</span>
                 </nav>
-                <ul id="preset-course-list" style="line-height: 160%;">
-                    <li data-cid="B07M4010">
+
+                <div id="preset-course-list" class="list" style="line-height: 160%;">
+                    <div data-cid="B07M4010" class="list-item">
                         <div>
                             <span>B07M4010</span>
                             <span>复变函数</span>
                             <span>数学学院</span>
                             <span>必修</span>
                         </div>
-                        <ul>
-                            <li data-cno="01">
+                        <div class="list">
+                            <div class="list-item" data-cno="01">
                                 <span>01</span>
                                 <span>王海兵</span>
                                 <span>1-16周 星期五 3-4节 教四-103</span>
-                            </li>
-                            <li data-cno="02">
+                            </div>
+                            <div class="list-item" data-cno="02">
                                 <span>02</span>
                                 <span>陈文彦</span>
                                 <span>1-16周 星期五 3-4节 教三-103</span>
-                            </li>
+                            </div>
                             <div>
                                 <input data-cno placeholder="编号" style="width: 60;">
                                 <input data-teacher placeholder="教师" style="width: 100;">
                                 <input data-place placeholder="课程时间地点" style="width: 400;">
                                 <button>增加</button>
                             </div>
-                        </ul>
-                    </li>
+                        </div>
+                    </div>
                     <div>
-                        <label style="display: block;">添加课程</label>
-                        <div>
+                        <b style="display: block;">添加课程</b>
+                        <div style="line-height: 250%;">
                             <label>课程号</label>
-                            <input type="text" data-cid value="" style="width: 100;">
-                            <label>课程名</label>
-                            <input type="text" data-cname value="" style="width: 200;">
-                            <label>开课单位</label>
-                            <input type="text" data-cunit value="" style="width: 100;">
-                            <label>类型</label>
+                            <input type="text" data-cid value="" style="width: 8em;">
+                            <label style="margin-left: 1em;">课程名</label>
+                            <input type="text" data-cname value="" style="width: 15em;">
+                            <label style="margin-left: 1em;">开课单位</label>
+                            <input type="text" data-cunit value="" style="width: 8em;">
+                            <label style="margin-left: 1em;">类型</label>
                             <select data-ctype>
                                 <option>必修</option>
                                 <option>任选</option>
@@ -141,7 +246,7 @@
                         </div>
                         <button>确定</button>
                     </div>
-                </ul>
+                </div>
             </div>
 
             <div id="preset-dialog" class="modal hide">
@@ -172,15 +277,19 @@
                             <span>通选课</span>
                         </nav>
                         <div>
-                            <textarea class="data-input" spellcheck="false" style="height: 100px; width: 100%;"></textarea>
-                            <textarea class="data-input" spellcheck="false" style="height: 100px; width: 100%; display: none;"></textarea>
-                            <textarea class="data-input" spellcheck="false" style="height: 100px; width: 100%; display: none;"></textarea>
+                            <textarea class="data-input" spellcheck="false"
+                                style="height: 100px; width: 100%;"></textarea>
+                            <textarea class="data-input" spellcheck="false"
+                                style="height: 100px; width: 100%; display: none;"></textarea>
+                            <textarea class="data-input" spellcheck="false"
+                                style="height: 100px; width: 100%; display: none;"></textarea>
                         </div>
                     </div>
                     <hr>
                     <div>
                         <label style="display: block;">导入/导出</label>
-                        <textarea id="txt-preset" class="data-input" spellcheck="false" style="height: 150px; width: 100%; "></textarea>
+                        <textarea id="txt-preset" class="data-input" spellcheck="false"
+                            style="height: 150px; width: 100%; "></textarea>
                     </div>
                     <div style="margin-top: 5px;">
                         <span style="float: right; margin-left: 10px;">
@@ -194,52 +303,64 @@
                     </div>
                 </div>
                 <script>
-                    // Load system presets
-                    $("#editor-select-system-preset").html(
-                        systemPresets.map(t => `<option>${t.name}</option>`).join("")
-                    );
-                    // Import preset
-                    $("#btn-import-system-preset").click(function () {
-                        let selection = $("#editor-select-system-preset").children('option:selected')
-                        let preset = systemPresets[selection.index()];
-                        PresetManager.add(preset);
-                    });
-                    // Export preset
-                    $("#btn-export-user-preset").click(function () {
-                        $("#txt-preset").text(JSON.stringify(curPreset));
-                    });
-                    // Create preset
-                    $("#btn-create-user-preset").click(function () {
-                        let inputJson=$("#preset-dialog .card div > div > textarea");
-                        let preset=new CurriculaPreset($("#txt-preset-name").val());
-                        preset.TJKC=CurriculaPreset.parseTJKC($(inputJson[0]).val());
-                        preset.TYKC=CurriculaPreset.parseTYKC($(inputJson[1]).val());
-                        preset.XGKC=CurriculaPreset.parseXGKC($(inputJson[2]).val());
-                        PresetManager.add(preset);
-                        $("#txt-preset-name").val("");
-                    });
-                    // Remove preset
-                    $("#btn-remove-user-preset").click(function () {
-                        PresetManager.remove(curPreset);
-                    });
+                    $(document).ready(function () {
+                        // Load system presets
+                        $("#editor-select-system-preset").html(
+                            systemPresets.map(t => `<option>${t.name}</option>`).join("")
+                        );
+                        // Import preset
+                        $("#btn-import-system-preset").click(function () {
+                            let selection = $("#editor-select-system-preset").children('option:selected')
+                            let preset = systemPresets[selection.index()];
+                            PresetManager.add(preset);
+                        });
+                        // Export preset
+                        $("#btn-export-user-preset").click(function () {
+                            $("#txt-preset").text(JSON.stringify(curPreset));
+                        });
+                        // Create preset
+                        $("#btn-create-user-preset").click(function () {
+                            let inputJson = $("#preset-dialog .card div > div > textarea");
+                            let preset = new CurriculaPreset($("#txt-preset-name").val());
+                            preset.TJKC = CurriculaPreset.parseTJKC($(inputJson[0]).val());
+                            preset.TYKC = CurriculaPreset.parseTYKC($(inputJson[1]).val());
+                            preset.XGKC = CurriculaPreset.parseXGKC($(inputJson[2]).val());
+                            PresetManager.add(preset);
+                            $("#txt-preset-name").val("");
+                        });
+                        // Remove preset
+                        $("#btn-remove-user-preset").click(function () {
+                            PresetManager.remove(curPreset);
+                        });
 
-                    // Cancel
-                    $("#preset-dialog button.cancel").click(function () {
-                        $("#preset-dialog").addClass("hide");
+                        // Cancel
+                        $("#preset-dialog button.cancel").click(function () {
+                            $("#preset-dialog").addClass("hide");
+                        });
+                        // Confirm
+                        $("#preset-dialog button.confirm").click(function () {
+                            $("#preset-dialog").addClass("hide");
+                            PresetManager.saveUserPresets();
+                        });
+                        // Nav
+                        $("#preset-dialog div > nav > span").click(function () {
+                            let target = $(`#preset-dialog .card div > div > textarea:eq(${$(this).index()})`);
+                            target.css("display", "");
+                            target.siblings().css("display", "none");
+                        })
                     });
-                    // Confirm
-                    $("#preset-dialog button.confirm").click(function () {
-                        $("#preset-dialog").addClass("hide");
-                        PresetManager.saveUserPresets();
-                    });
-                    // Nav
-                    $("#preset-dialog div > nav > span").click(function() {
-                        let target=$(`#preset-dialog .card div > div > textarea:eq(${$(this).index()})`);
-                        target.css("display", "");
-                        target.siblings().css("display", "none");
-                    })
                 </script>
             </div>
+
+            <style>
+                #preset-dialog .card {
+                    line-height: 200%;
+                }
+
+                #preset-course-list span {
+                    margin-right: 1em;
+                }
+            </style>
 
             <script>
 
@@ -255,6 +376,7 @@
                     if (index == 0) PresetManager.show(curPreset, CourseCategory.TJKC);
                     else if (index == 1) PresetManager.show(curPreset, CourseCategory.TYKC);
                     else if (index == 2) PresetManager.show(curPreset, CourseCategory.XGKC);
+                    $(this).attr("current", "").siblings().removeAttr("current");
                 })
 
                 // Select preset
@@ -340,6 +462,14 @@
         <button id="btnSubmit" >Submit</button> -->
     </div>
     <script>
+        document.addEventListener("click", function (e) {
+            //console.log(e);
+            $(".popup:not(.hide)").addClass("hide");
+        }, false);
+        $(".popup").click(function (e) {
+            e.stopPropagation ? e.stopPropagation() : e.cancelBubble = true;
+        });
+
         var curWeek = 1;
         var scheduleShownMode = 0;
         $("#timetable-area .arrow-left").click(() => {
@@ -410,5 +540,19 @@
         // });
     </script>
 </body>
+
+<template data-template="preset-add-class">
+    <div class="line-button" style="margin-top: .5em; user-select: none;">
+        <hr style="height: 5px; margin: 0 auto; border: 0;
+            background-image: linear-gradient(to right, rgba(0, 0, 0, 0), rgb(127 127 127 / 25%), rgba(0, 0, 0, 0));">
+        <img src="image/AddOnlineVersion_16x.svg" width="15" style="display: block; margin: 0 auto; margin-top: -10px;">
+    </div>
+    <div class="form" style="display: none;">
+        <input data-cno placeholder="编号" style="width: 3em; margin-right: .5em;">
+        <input data-teacher placeholder="教师" style="width: 5em; margin-right: .5em;">
+        <input data-place placeholder="课程时间地点" style="margin-right: .5em; flex-grow: 1;">
+        <button>增加</button>
+    </div>
+</template>
 
 </html>
