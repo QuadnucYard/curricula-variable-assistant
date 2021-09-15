@@ -16,11 +16,38 @@
 <body>
     <header>
         <style>
-            .global-preset-select {
+            header {
                 user-select: none;
             }
 
-            .global-preset-select span {
+            header div.left ul {
+                list-style-type: none;
+                margin: 0;
+                padding: 0;
+                overflow: hidden;
+                background-color: #333;
+            }
+
+            header div.left li {
+                float: left;
+                display: block;
+                width: 8em;
+                line-height: 50px;
+                color: white;
+                text-align: center;
+                text-decoration: none;
+                cursor: pointer;
+            }
+
+            header div.left li:hover:not(.active) {
+                background-color: #111;
+            }
+
+            header .global-preset-select {
+                user-select: none;
+            }
+
+            header .global-preset-select span {
                 display: inline-block;
                 width: 80px;
                 height: 100%;
@@ -31,85 +58,89 @@
                 user-select: none;
             }
 
-            .global-preset-select span:nth-child(2) {
+            header .global-preset-select span:nth-child(2) {
                 color: #e74c3c;
                 cursor: pointer;
             }
 
-            .preset-options {
+            header .preset-options {
                 position: absolute;
                 right: 0;
-                margin-top: .2em;
+                margin-top: 0em;
                 padding: .3em;
-                width: 10em;
+                width: 15em;
                 background: #fff;
                 border-radius: 5px;
                 border: 1px solid rgba(0, 0, 0, .2);
                 color: #333;
             }
 
-            .preset-options a {
+            header .preset-options a {
                 display: block;
                 padding: .3em;
                 color: #333;
             }
 
-            .preset-options a:hover {
+            header .preset-options a:hover {
                 background-color: rgb(190, 190, 190);
             }
 
-            .preset-options.hide {
+            header .preset-options.hide {
                 display: none;
             }
         </style>
-        <div style="display: inline-block; height: 50px;">
-            <!-- <img src="image/logo.png" alt="Curricula Variable Assistant!" style="transform:scale(0.6); float:left;"> -->
+        <!-- <div style="display: inline-block; height: 50px;">
+            <img src="image/logo.png" alt="Curricula Variable Assistant!" height="50px" style="float:left;">
+        </div> -->
+
+        <!-- 导航按钮 -->
+        <div class="left" style="float: left;">
+            <ul>
+                <li>课程预设</li>
+                <li>模拟选课</li>
+                <li>智能选课</li>
+            </ul>
         </div>
-        <div class="global-preset-select" style="float: right">
-            <div>
-                <span>当前预设</span>
-                <span class="popup-button">NULL</span>
-            </div>
-            <div class="preset-options popup hide">
+        <div class="right global-preset-select" style="float: right;">
+            <span>当前预设</span><span style="width: 10em; text-align: left;">NULL</span>
+            <div class="preset-options" style="display: none;">
                 <a>第一个</a>
                 <a>第二个</a>
             </div>
-            <script>
-                $(".global-preset-select > div > span:eq(1)").click(function (e) {
-                    $(".preset-options").toggleClass("hide");
-                });
-                $(".popup-button").click(function (e) {
-                    e.stopPropagation ? e.stopPropagation() : e.cancelBubble = true;
-                });
-            </script>
         </div>
-    </header>
-    <!-- deprecated -->
-    <div id="input-dialog" class="modal hide">
-        <div class="background"></div>
-        <div class="card info-card center">
-            <h3 class="cva-h3"></h3>
-            <div>
-                <textarea id="txtInput" class="data-input expanding" placeholder="JSON数据"></textarea>
-            </div>
-            <div style="margin-top: 5px;">
-                <span style="float: right; margin-left: 10px;">
-                    <button class="cva-form-sz-middle cancel"
-                        style="border-color: #e74c3c; background-color: #e74c3c;">取消</button>
-                </span>
-                <span style="float: right">
-                    <button class="cva-form-sz-middle confirm"
-                        style="border-color: #3498db; background-color: #3498db;">确认</button>
-                </span>
+        <script>
+            $("header .left ul li").click(function () {
+                switch ($(this).index()) {
+                    case 0: $("#tab-preset").removeClass("hide").siblings().addClass("hide"); break;
+                    case 1: 
+                        scheduler.switchPreset(presetMngr.curPreset);
+                        $("#tab-schedule").removeClass("hide").siblings().addClass("hide"); 
+                        break;
+                }
+            });
 
-            </div>
-        </div>
-    </div>
+            $(".global-preset-select").hover(function () {
+                $(".global-preset-select .preset-options").stop(true, true).slideDown(200);
+            }, function () {
+                $(".global-preset-select .preset-options").stop(true, true).slideUp(150);
+            });
+
+            //全局当前预设选择
+            $(".global-preset-select .preset-options").click(function (e) {
+                if (e.target.tagName == "A") {
+                    presetMngr.switchGlobalPresetByIndex($(e.target).index());
+                }
+            });
+
+        </script>
+    </header>
+
     <div class="tab-area">
-        <div id="tab-preset" style>
+        <div id="tab-preset">
             <style>
                 #tab-preset {
                     margin: auto;
+                    padding-top: .5em;
                     width: 65%;
                     background-color: rgb(253, 253, 253);
                 }
@@ -126,6 +157,19 @@
                     width: 40px;
                     height: 40px;
                     margin-bottom: .4em;
+                }
+
+                #tab-preset .term-config {
+                    margin: .5em;
+                    padding: 1em;
+                    display: block;
+                    box-sizing: border-box;
+                    box-shadow: 0 1px 3px #33333342;
+                }
+
+                #tab-preset .term-config label {
+                    margin-left: 1em;
+                    margin-right: .2em;
                 }
 
                 #tab-preset nav.tab-bar {
@@ -182,12 +226,43 @@
                     margin-top: .5em;
                 }
             </style>
-            <!-- 这里考虑居中显示 -->
+            <!-- 工具栏 -->
             <div class="toolbar">
                 <button id="btn-edit-preset" title="预设编辑器"
                     style="background-image: url('image/Editor_16x.svg');"></button>
                 <button title="保存当前预设" style="background-image: url('image/Save_16x.svg');"></button>
             </div>
+            <!-- 学期相关设置 -->
+            <div class="term-config">
+                <div style="line-height: 200%;">
+                    <b>学期配置</b>
+                    <label data-label="term-text">2020-2021-1</label>
+                </div>
+                <label>学年</label>
+                <select data-year>
+                    <option>2020-2021</option>
+                    <option>2021-2022</option>
+                    <option>2022-2023</option>
+                </select>
+                <label>学期</label>
+                <select data-term>
+                    <option>秋季学期</option>
+                    <option>冬季学校</option>
+                    <option>春季学期</option>
+                    <option>暑期学校</option>
+                </select>
+                <label data-label="term-weeks">周数：16</label>
+
+                <script>
+                    $(".term-config select").change(function () {
+                        let term = $(".term-config select[data-term]")[0].selectedIndex + 1;
+                        $(".term-config label[data-label='term-text']").text(
+                            $(".term-config select[data-year]").val() + "-" + term);
+                        $(".term-config label[data-label='term-weeks']").text("周数：" + (term == 1 || term == 3 ? 16 : term == 2 ? 3 : 4));
+                    });
+                </script>
+            </div>
+            <!-- 课程编辑 -->
             <div>
                 <nav class="tab-bar">
                     <span current>系统推荐课程</span>
@@ -312,25 +387,26 @@
                         $("#btn-import-system-preset").click(function () {
                             let selection = $("#editor-select-system-preset").children('option:selected')
                             let preset = systemPresets[selection.index()];
-                            PresetManager.add(preset);
+                            presetMngr.add(preset);
                         });
                         // Export preset
                         $("#btn-export-user-preset").click(function () {
-                            $("#txt-preset").text(JSON.stringify(curPreset));
+                            $("#txt-preset").text(JSON.stringify(presetMngr.curPreset));
                         });
                         // Create preset
                         $("#btn-create-user-preset").click(function () {
                             let inputJson = $("#preset-dialog .card div > div > textarea");
-                            let preset = new CurriculaPreset($("#txt-preset-name").val());
-                            preset.TJKC = CurriculaPreset.parseTJKC($(inputJson[0]).val());
-                            preset.TYKC = CurriculaPreset.parseTYKC($(inputJson[1]).val());
-                            preset.XGKC = CurriculaPreset.parseXGKC($(inputJson[2]).val());
-                            PresetManager.add(preset);
+                            let preset = new CurriculaPreset($("#txt-preset-name").val(), {
+                                TJKC: $(inputJson[0]).val(),
+                                TYKC: $(inputJson[1]).val(),
+                                XGKC: $(inputJson[2]).val()
+                            });
+                            presetMngr.add(preset);
                             $("#txt-preset-name").val("");
                         });
                         // Remove preset
                         $("#btn-remove-user-preset").click(function () {
-                            PresetManager.remove(curPreset);
+                            presetMngr.remove(presetMngr.curPreset);
                         });
 
                         // Cancel
@@ -340,7 +416,7 @@
                         // Confirm
                         $("#preset-dialog button.confirm").click(function () {
                             $("#preset-dialog").addClass("hide");
-                            PresetManager.saveUserPresets();
+                            presetMngr.saveUserPresets();
                         });
                         // Nav
                         $("#preset-dialog div > nav > span").click(function () {
@@ -373,52 +449,54 @@
                 $("#tab-preset > div > nav > span").click(function () {
                     let index = $(this).index();
                     //TODO 获取当前的preset
-                    if (index == 0) PresetManager.show(curPreset, CourseCategory.TJKC);
-                    else if (index == 1) PresetManager.show(curPreset, CourseCategory.TYKC);
-                    else if (index == 2) PresetManager.show(curPreset, CourseCategory.XGKC);
+                    if (index == 0) presetMngr.show(presetMngr.curPreset, CourseCategory.TJKC);
+                    else if (index == 1) presetMngr.show(presetMngr.curPreset, CourseCategory.TYKC);
+                    else if (index == 2) presetMngr.show(presetMngr.curPreset, CourseCategory.XGKC);
                     $(this).attr("current", "").siblings().removeAttr("current");
                 })
 
                 // Select preset
                 $("#preset-selector").change(function () {
-                    PresetManager.show(presets[$(this).children('option:selected').index()]);
+                    presetMngr.show(presetMngr.presets[$(this).children('option:selected').index()]);
                 });
 
-                PresetManager.loadUserPresets();
+                presetMngr.loadUserPresets();
             </script>
         </div>
-        <div id="tab-schedule" style="display: none;">
+
+        <div id="tab-schedule" class="hide">
+            <style>
+                .bh-h2,
+                .h2 {
+                    font-size: 20px;
+                    line-height: 20px;
+                }
+
+                .bh-color-primary {
+                    color: #1486e4 !important;
+                }
+
+                .bh-ph-4 {
+                    padding-left: 4px !important;
+                    padding-right: 4px !important;
+                }
+
+                .bh-l-inline {
+                    display: inline-block;
+                }
+
+                .arrow {
+                    cursor: pointer;
+                    border: solid 1px #2196f3;
+                    border-radius: 8px;
+                    color: #2196f3;
+                    box-sizing: border-box;
+                }
+            </style>
             <div class="row">
                 <div id="timetable-area" class="column left">
                     <div style="position: relative; background-color: #edf0e5; padding-top: 20; user-select: none;">
-                        <style>
-                            .bh-h2,
-                            .h2 {
-                                font-size: 20px;
-                                line-height: 20px;
-                            }
-
-                            .bh-color-primary {
-                                color: #1486e4 !important;
-                            }
-
-                            .bh-ph-4 {
-                                padding-left: 4px !important;
-                                padding-right: 4px !important;
-                            }
-
-                            .bh-l-inline {
-                                display: inline-block;
-                            }
-
-                            .arrow {
-                                cursor: pointer;
-                                border: solid 1px #2196f3;
-                                border-radius: 8px;
-                                color: #2196f3;
-                                box-sizing: border-box;
-                            }
-                        </style>
+                        
                         <div style="width: 300px; margin: 0 auto; padding-bottom: 10px;  text-align: center;">
                             <div class="bh-l-inline bh-color-primary bh-h2" style="margin-bottom: 0.5em;">
                                 2021-2022-1学期课程表
@@ -446,14 +524,19 @@
                 <div class="column right">
                     <div>
                         <ul class="nav course-nav" style="width: auto;">
-                            <li><a href="javascript: void(0)">系统推荐课程</a></li>
-                            <li><a href="javascript: void(0)">体育课</a></li>
-                            <li><a href="javascript: void(0)">通选课</a></li>
+                            <li><a href="javascript: void(0)" data-tab="TJKC">系统推荐课程</a></li>
+                            <li><a href="javascript: void(0)" data-tab="TYKC">体育课</a></li>
+                            <li><a href="javascript: void(0)" data-tab="XGKC">通选课</a></li>
                         </ul>
                     </div>
                     <ul class="clist mostly-customized-scrollbar" style="height: 60em;"></ul>
                 </div>
             </div>
+            <script>
+                $("#tab-schedule .nav.course-nav a").click(function() {
+                    scheduler.showCourseList(this.attributes["data-tab"].nodeValue);
+                });
+            </script>
         </div>
     </div>
 
@@ -462,12 +545,13 @@
         <button id="btnSubmit" >Submit</button> -->
     </div>
     <script>
-        document.addEventListener("click", function (e) {
-            //console.log(e);
-            $(".popup:not(.hide)").addClass("hide");
-        }, false);
+        // document.addEventListener("click", function (e) {
+        //     //console.log(e);
+        //     $(".popup:not(.hide)").addClass("hide");
+        // });
         $(".popup").click(function (e) {
-            e.stopPropagation ? e.stopPropagation() : e.cancelBubble = true;
+            //console.log(e);
+            //e.stopPropagation ? e.stopPropagation() : e.cancelBubble = true;
         });
 
         var curWeek = 1;
@@ -482,7 +566,7 @@
             updateTimetable(++curWeek);
             $("#zkbzc").text(curWeek);
         });
-        initCourseList();
+        scheduler.showCourseList();
         $("#timetable-area>div>div").eq(1).click(() => {
             //从周课表切换到学期课表
             scheduleShownMode = 1;

@@ -5,14 +5,21 @@ const CourseCategory = Object.freeze({
     XGKC: "XGKC"
 });
 
+//一个更好的做法是开一个统一的列表，但不好操作？
 class CurriculaPreset {
     name;
     TJKC;
     TYKC;
     XGKC;
 
-    constructor(name) {
+    dataMap=new Map(); //id的映射
+    //sessions=new Map(); //考虑把解析得到的每节课信息存这
+
+    constructor(name, rest=null) {
         this.name = name;
+        if (rest?.TJKC) this.TJKC=parseTJKC(rest.TJKC);
+        if (rest?.TYKC) this.TYKC=parseTJKC(rest.TYKC);
+        if (rest?.XGKC) this.XGKC=parseTJKC(rest.XGKC);
     }
 
     static #parseRawJson(jsonstr) {
@@ -21,7 +28,7 @@ class CurriculaPreset {
         try {
             json = jsonstr.split(/(?<=})\s*(?={)/).flatMap(t => JSON.parse(t)["data"]["rows"]);
         } catch (error) {
-            console.log("err");
+            console.error("Parse raw json error");
             return [];
         }
         console.log(json);
@@ -42,72 +49,74 @@ class CurriculaPreset {
     }
 }
 
-var presets = [];
-var curPreset = null;
-var curPresetCategory = null;
-
-//可能需要一个PresetManager
 class PresetManager {
+    presets = [];
+    curPreset = null;
+    curPresetCategory = null;
 
-
-    static load() {
-
-    }
-
-    static add(preset) {
-        presets.push(preset);
+    add(preset) {
+        this.presets.push(preset);
         $("#editor-select-user-preset").append(`<option>${preset.name}</option>`)
         $("#preset-selector").append(`<option>${preset.name}</option>`)
         $("#editor-select-user-preset").val(preset.name);
         this.show(preset);
         $(".preset-options").html(
-            presets.map(t => `<a>${t.name}</a>`).join("")
+            this.presets.map(t => `<a>${t.name}</a>`).join("")
         )
     }
 
-    static remove(preset) {
-        let index = presets.indexOf(preset);
-        presets.removeAt(index);
-        if (preset == curPreset) {
-            if (presets.length == 0) {
+    remove(preset) {
+        let index = this.presets.indexOf(preset);
+        this.presets.removeAt(index);
+        if (preset == this.curPreset) {
+            if (this.presets.length == 0) {
                 this.show(null);
             } else {
-                this.show(index == presets.length ? presets[index - 1] : presets[index]);
+                this.show(index == this.presets.length ? this.presets[index - 1] : this.presets[index]);
             }
         }
         $(`#editor-select-user-preset > option:eq(${index})`).remove();
         $(`#preset-selector > option:eq(${index})`).remove();
-        if (curPreset) {
-            $("#editor-select-user-preset").val(curPreset.name);
-            $("#preset-selector").val(curPreset.name);
+        if (this.curPreset) {
+            $("#editor-select-user-preset").val(this.curPreset.name);
+            $("#preset-selector").val(this.curPreset.name);
         }
     }
 
-    static switchGlobalPresetByIndex(index) {
-        let preset=presets[index];
-        $(".global-preset-select > div > span:eq(1)").text(preset.name);
+    switchGlobalPresetByIndex(index) {
+        let preset=this.presets[index];
+        //涉及到的有：预设显示，预设编辑中的选择，右上角的显示，选课
+        //其中选课的只在当前显示选课的时候加载
+        $(".global-preset-select span:eq(1)").text(preset.name);
+        if (preset!=this.curPreset) {
+            this.show(preset);
+        }
+        //console.log("switchGlobalPreset",preset.name);
+        if (!$("#tab-schedule").hasClass("hide")) {
+            scheduler.switchPreset(preset);
+        }
     }
 
-    static switchGlobalPreset() {
+    switchGlobalPreset() {
 
     }
 
     //显示预设，具体到课程类别
     //这里的 preset 是 courseData 的数组
-    static show(preset, category = CourseCategory.TJKC) {
-        console.log("show", preset, category);
+    show(preset, category = CourseCategory.TJKC) {
+        //console.log("show", preset, category);
         if (!preset) {
-            curPreset = null;
+            this.curPreset = null;
             $("#preset-course-list > li").remove();
             return;
         }
 
-        if (category == curPresetCategory && preset == curPreset) return;
+        if (category == this.curPresetCategory && preset == this.curPreset) return;
 
-        curPreset = preset;
-        $("#preset-selector").val(curPreset.name);
+        this.curPreset = preset;
+        $("#preset-selector").val(this.curPreset.name);
 
-        curPresetCategory = category;
+        this.curPresetCategory = category;
         let subpreset = preset[category];
         //需要针对类别讨论
         $("#preset-course-list > div.list-item").remove();
@@ -188,34 +197,36 @@ class PresetManager {
         });
     }
 
-    static addCourse(cdata) {
+    addCourse(cdata) {
 
     }
 
-    static addClass() {
+    addClass() {
 
     }
 
-    static loadUserPresets() {
+    loadUserPresets() {
         if (localStorage.getItem("userPresets")) {
-            presets = JSON.parse(localStorage.getItem("userPresets"));
+            this.presets = JSON.parse(localStorage.getItem("userPresets"));
             $("#preset-selector").html(
-                presets.map(t => `<option>${t.name}</option>`).join("")
+                this.presets.map(t => `<option>${t.name}</option>`).join("")
             );
             $("#editor-select-user-preset").html(
-                presets.map(t => `<option>${t.name}</option>`).join("")
+                this.presets.map(t => `<option>${t.name}</option>`).join("")
             );
             $(".preset-options").html(
-                presets.map(t => `<a>${t.name}</a>`).join("")
+                this.presets.map(t => `<a>${t.name}</a>`).join("")
             )
+            $(".global-preset-select span:eq(1)").text(this.presets[0]?.name);
         } else {
-            presets = [];
+            this.presets = [];
         }
-        this.show(presets[0]);
+        this.show(this.presets[0]);
     }
 
-    static saveUserPresets() {
-        localStorage.setItem("userPresets", JSON.stringify(presets))
+    saveUserPresets() {
+        localStorage.setItem("userPresets", JSON.stringify(this.presets))
     }
 }
 
+var presetMngr=new PresetManager();

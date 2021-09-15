@@ -1,5 +1,5 @@
 const compareInt = (a, b) => a < b ? -1 : (b < a ? 1 : 0);
-var sessionDict = new Map();
+var sessionDict = new Map(); //其实这个应该跟着课程走，预先解析所有课程的数据
 
 const ConflictStatus = Object.freeze({
     None: 0,
@@ -7,71 +7,10 @@ const ConflictStatus = Object.freeze({
     Proper: 2
 });
 
-class ClassSession {
-    raw; //原始字符串分成的数组
-    cid; //课程代号
-    cno; //课程代号
-    week; //周
-    day; //周几
-    tStart; //开始时间
-    tEnd; //结束时间
-    classroom; //教室
-
-    constructor(week, day, tStart, tEnd, classroom) {
-        this.week = week;
-        this.day = day;
-        this.tStart = tStart;
-        this.tEnd = tEnd;
-        this.classroom = classroom;
-    }
-
-    get ordinal() {
-        let base = (this.week - 1) * 91 + this.day * 13;
-        return [base + this.tStart, base + this.tEnd];
-    }
-
-    get span() {
-        return this.tEnd - this.tStart + 1;
-    }
-
-    static mapDay(str) {
-        const mapday = {
-            "星期一": 0,
-            "星期二": 1,
-            "星期三": 2,
-            "星期四": 3,
-            "星期五": 4,
-            "星期六": 5,
-            "星期日": 6
-        }
-        return mapday[str];
-    }
-
-    toHtml() {
-        let h = getHashCode(this.cid) % 360;
-        return (
-            `<div class="session-label" style="background-color: hsl(${h},80%,90%); border-color: hsl(${h},50%,80%);">
-            <p>${curriculumDataMap[this.cid].cname}-${this.cno}</p>
-            <p>${this.raw[3]}</p>
-            <p>${curriculumDataMap[this.cid].at(this.cno).teacher}</p>
-        </div>`);
-    }
-
-    toOverallHtml() {
-        let h = getHashCode(this.cid) % 360;
-        return (
-            `<div class="session-label" style="background-color: hsl(${h},80%,90%); border-color: hsl(${h},50%,80%);">
-            <p>${curriculumDataMap[this.cid].cname}-${this.cno}</p>
-            <p>${this.raw[0]}</p>
-            <p>${this.raw[1]} ${this.raw[2]}</>
-            <p>${this.raw[3]}</p>
-            <p>${curriculumDataMap[this.cid].at(this.cno).teacher}</p>
-        </div>`);
-    }
-}
 
 class Timetable {
 
+    hostPreset; //使用的预设
     #choosen = null;
     #courseChoice = new Map();
 
@@ -245,95 +184,135 @@ class Timetable {
         return sessionDict.get(teachingPlace);
     }
 
-    trace() {
-        console.log(this.#choosen);
+}
+
+//课程规划
+
+class Scheduler {
+    timetable = new Timetable();
+    curPresetCategory;
+
+    switchPreset(preset) {
+        if (this.timetable.hostPreset==preset) return;
+        this.timetable.hostPreset=preset;
+        this.curPresetCategory=null;
+        //然后初始化界面
+        this.showCourseList();
     }
-}
-window.timetable = new Timetable();
 
-function initCourseList() {
-    curriculumData = curriculumData.sort((a, b) => a.cid < b.cid ? -1 : 1);
-    $("ul.clist").html(
-        `${curriculumData.map(data =>
-            `<li id="${data.cid}">
-                <div>
-                    <span>
-                        <span style="display: inline-block; color: #2C7AD6; width: 5.5em;">${data.cid}</span>
-                        <span style="display: inline-block">${data.cname}</span>
-                    </span>
-                    <span style="float: right">
-                        <span style="display: inline-block; color: #9d3dcf; margin-right: 0.4em;">${data.ctype}</span>
-                    </span>
-                </div>
-                <ul>${data.tcList.map(t =>
-                `<li id="${data.cid}-${t.no}" class="">
-                        <span class="tag-caption text-center" style="background-color: #13C2C2; width: 1em">${t.no}</span>
-                        <span class="tag-caption text-center" style="background-color: #3498DB; width: 3em">${t.teacher}</span>
-                        <span class="tag-caption" style="background-color: #F39C11">${t.teachingPlace}</span>
-                    </li>`).join("")}
-                </ul>
-            </li>`).join("")}
-    `);
-    $("ul.clist li div").click(function (event) { toggleCourseDisplay($(this).parent().attr("id")); });
-    $("ul.clist li ul li").click(function (event) { selectCourse1(this.id); });
-    initTimetable();
-}
-
-function initTimetable() {
-    updateTimetable(scheduleShownMode == 0 ? curWeek : 0);
-}
-
-function updateTimetable(week) {
-    $("div#timetable-area table").html(week == 0 ? timetable.toOverallHtml() : timetable.toHtml(week));
-}
-
-function toggleCourseDisplay(course_id) {
-    //console.log("toggleCourseDisplay", course_id);
-    let tar = $(`li#${course_id} ul`);
-    if (tar.css("display") == "none") tar.css("display", "");
-    else tar.css("display", "none");
-}
-
-function selectCourse1(course) {
-    selectCourse(...course.split("-"));
-}
-
-function selectCourse(course_id, class_id) {
-    //console.log("selectCourse", course_id, class_id);
-    //console.log(timetable.getCourseConflicts(course_id, class_id));
-    //冲突的更新换个做法，先加上冲突，再上伪冲突
-    let target = $(`li#${course_id}-${class_id}`);
-    let selection = timetable.getCourseChoice(course_id);
-    if (selection != undefined) timetable.dropCourse(course_id, selection);
-    if (selection != class_id) {
-        if (timetable.chooseCourse(course_id, class_id)) {
-            target.addClass("selected");
-            target.siblings().removeClass("selected");
-        } else {
-            window.alert("Course conflict!");
+    showCourseList(category = CourseCategory.TJKC) {
+        
+        let preset=this.timetable.hostPreset;
+        if (!preset) {
+            this.curPreset = null;
+            return;
         }
-    } else { //点了自己
-        target.removeClass("selected");
+        if (category == this.curPresetCategory) return;
+
+        this.curPresetCategory = category;
+        let subpreset = preset[category];
+        //需要针对类别讨论
+        if (category != CourseCategory.XGKC) {
+            $("ul.clist").html(
+                `${subpreset.map(u =>
+                    `<li id="${u.cid}">
+                        <div>
+                            <span>
+                                <span style="display: inline-block; color: #2C7AD6; width: 5.5em;">${u.cid}</span>
+                                <span style="display: inline-block">${u.cname}</span>
+                            </span>
+                            <span style="float: right">
+                                <span style="display: inline-block; color: #9d3dcf; margin-right: 0.4em;">${u.ctype}</span>
+                            </span>
+                        </div>
+                        <ul>${u.tcList.map(t =>
+                        `<li id="${u.cid}-${t.no}" class="">
+                                <span class="tag-caption text-center" style="background-color: #13C2C2; width: 1em">${t.no}</span>
+                                <span class="tag-caption text-center" style="background-color: #3498DB; width: 3em">${t.teacher}</span>
+                                <span class="tag-caption" style="background-color: #F39C11">${t.teachingPlace}</span>
+                            </li>`).join("")}
+                        </ul>
+                    </li>`).join("")}`
+            );
+        } else {
+            $("ul.clist").html(
+                `${subpreset.map(u =>
+                    `<li id="${u.cid}">
+                        <div>
+                            <span>
+                                <span style="display: inline-block; color: #2C7AD6; width: 5.5em;">${u.cid}</span>
+                                <span style="display: inline-block">${u.cname}</span>
+                            </span>
+                            <span style="float: right">
+                                <span style="display: inline-block; color: #9d3dcf; margin-right: 0.4em;">${u.ctype}</span>
+                            </span>
+                        </div>
+                    </li>`).join("")}`
+            );
+        }
+
+        $("ul.clist li div").click(function (event) { this.toggleCourseDisplay($(this).parent().attr("id")); });
+        $("ul.clist li ul li").click(function (event) { this.selectCourse1(this.id); });
+        this.initTimetable();
     }
-    //更新一下冲突
-    //定义伪冲突：在同类课程中，如果去掉被选的那个导致其他可选，那么这个冲突就是伪冲突
-    for (let course of curriculumData) {
-        let selection = timetable.getCourseChoice(course.cid);
-        for (let cclass of course.tcList) {
-            let target = $(`li#${course.cid}-${cclass.no}`);
-            let conflicts = timetable.getCourseConflicts(course.cid, cclass.no);
-            if (conflicts.size == 0 || conflicts.size == 1 && selection == cclass.no) {
-                target.removeClass("conflicting");
-                target.removeClass("pseudo-conflicting");
-            } else if (conflicts.size == 1 && conflicts.values().next().value.startsWith(course.cid)) {
-                target.removeClass("conflicting");
-                target.addClass("pseudo-conflicting");
+    
+    initTimetable() {
+        this.updateTimetable(scheduleShownMode == 0 ? curWeek : 0);
+    }
+    
+    updateTimetable(week) {
+        $("div#timetable-area table").html(week == 0 ? this.timetable.toOverallHtml() : this.timetable.toHtml(week));
+    }
+    
+    toggleCourseDisplay(course_id) {
+        let tar = $(`li#${course_id} ul`);
+        if (tar.css("display") == "none") tar.css("display", "");
+        else tar.css("display", "none");
+    }
+    
+    selectCourse1(course) {
+        this.selectCourse(...course.split("-"));
+    }
+    
+    selectCourse(course_id, class_id) {
+        //console.log("selectCourse", course_id, class_id);
+        //console.log(timetable.getCourseConflicts(course_id, class_id));
+        //冲突的更新换个做法，先加上冲突，再上伪冲突
+        let target = $(`li#${course_id}-${class_id}`);
+        let selection = timetable.getCourseChoice(course_id);
+        if (selection != undefined) timetable.dropCourse(course_id, selection);
+        if (selection != class_id) {
+            if (timetable.chooseCourse(course_id, class_id)) {
+                target.addClass("selected");
+                target.siblings().removeClass("selected");
             } else {
-                target.addClass("conflicting");
-                target.removeClass("pseudo-conflicting");
+                window.alert("Course conflict!");
+            }
+        } else { //点了自己
+            target.removeClass("selected");
+        }
+        //更新一下冲突
+        //定义伪冲突：在同类课程中，如果去掉被选的那个导致其他可选，那么这个冲突就是伪冲突
+        for (let course of curriculumData) {
+            let selection = timetable.getCourseChoice(course.cid);
+            for (let cclass of course.tcList) {
+                let target = $(`li#${course.cid}-${cclass.no}`);
+                let conflicts = timetable.getCourseConflicts(course.cid, cclass.no);
+                if (conflicts.size == 0 || conflicts.size == 1 && selection == cclass.no) {
+                    target.removeClass("conflicting");
+                    target.removeClass("pseudo-conflicting");
+                } else if (conflicts.size == 1 && conflicts.values().next().value.startsWith(course.cid)) {
+                    target.removeClass("conflicting");
+                    target.addClass("pseudo-conflicting");
+                } else {
+                    target.addClass("conflicting");
+                    target.removeClass("pseudo-conflicting");
+                }
             }
         }
+        this.initTimetable();
+        //timetable.trace();
     }
-    initTimetable();
-    //timetable.trace();
 }
+
+var scheduler=new Scheduler();
