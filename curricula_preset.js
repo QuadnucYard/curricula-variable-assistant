@@ -6,20 +6,17 @@ const CourseCategory = Object.freeze({
 });
 
 //一个更好的做法是开一个统一的列表，但不好操作？
-class CurriculaPreset {
+class CurriculaPresetData {
     name;
     TJKC;
     TYKC;
     XGKC;
 
-    dataMap=new Map(); //id的映射
-    //sessions=new Map(); //考虑把解析得到的每节课信息存这
-
-    constructor(name, rest=null) {
+    constructor(name, rest = null) {
         this.name = name;
-        if (rest?.TJKC) this.TJKC=parseTJKC(rest.TJKC);
-        if (rest?.TYKC) this.TYKC=parseTJKC(rest.TYKC);
-        if (rest?.XGKC) this.XGKC=parseTJKC(rest.XGKC);
+        this.TJKC = rest?.TJKC ? CurriculaPresetData.parseTJKC(rest.TJKC) : [];
+        this.TYKC = rest?.TYKC ? CurriculaPresetData.parseTYKC(rest.TYKC) : [];
+        this.XGKC = rest?.XGKC ? CurriculaPresetData.parseXGKC(rest.XGKC) : [];
     }
 
     static #parseRawJson(jsonstr) {
@@ -31,7 +28,7 @@ class CurriculaPreset {
             console.error("Parse raw json error");
             return [];
         }
-        console.log(json);
+        //console.log(json);
         return json;
     }
 
@@ -45,30 +42,74 @@ class CurriculaPreset {
     }
 
     static parseXGKC(json) {
-        return this.#parseRawJson(json).map(t => CourseData.parseXGKC(t));
+        //这里需要注意，应该合并同id的课程
+        //但同一id不同no的课程，有些课程信息不一样
+        let tmp=this.#parseRawJson(json).map(t => CourseData.parseXGKC(t));
+        return _.chain(tmp).groupBy("cid").map((t, k)=> Object.assign({},t[0],{tcList: t.map(s=>s.tcList[0])})).value();
     }
 }
 
-class PresetManager {
-    presets = [];
-    curPreset = null;
+class CurriculaPreset {
+
+    data;
+
+    dataMap = new Map(); //课程id映射到CourseData
+    sessions = new Map(); //考虑把解析得到的每节课信息存这，id映射到课程的所有session
+
+    static current;
+
+    constructor(_data) {
+        this.data = _data;
+        this.init();
+    }
+
+    init() {
+        //初始化操作，需要解析数据中的所有课
+        console.log("init");
+        console.log(this.data);
+        this.data.TJKC?.forEach(t => this.dataMap.set(t.cid, new CourseData(t)));
+        this.data.TYKC?.forEach(t => this.dataMap.set(t.cid, new CourseData(t)));
+        this.data.XGKC?.forEach(t => this.dataMap.set(t.cid, new CourseData(t)));
+        //console.log(this.dataMap);
+    }
+
+    getSessions(course_id, class_id) {
+        //console.log(course_id);
+        //console.log(this.dataMap);
+        let course = this.dataMap.get(course_id);
+        //console.log(course_id, class_id,course,course.at(class_id))
+        return ClassSession.resolveTeachingPlace(course_id, class_id, course.at(class_id).teachingPlace);
+    }
+
+    static getCourse(course_id) {
+        return CurriculaPreset.current.dataMap.get(course_id);
+    }
+
+}
+
+//下面需要重写当前预设获取
+class PresetManager { //预设管理器，兼顾编辑器
+    presets = []; //包装过的预设
+
     curPresetCategory = null;
 
-    add(preset) {
+    add(presetData) {
+        let preset = new CurriculaPreset(presetData);
         this.presets.push(preset);
-        $("#editor-select-user-preset").append(`<option>${preset.name}</option>`)
-        $("#preset-selector").append(`<option>${preset.name}</option>`)
-        $("#editor-select-user-preset").val(preset.name);
+        $("#editor-select-user-preset").append(`<option>${presetData.name}</option>`)
+        $("#preset-selector").append(`<option>${presetData.name}</option>`)
+        $("#editor-select-user-preset").val(presetData.name);
         this.show(preset);
         $(".preset-options").html(
-            this.presets.map(t => `<a>${t.name}</a>`).join("")
+            this.presets.map(t => `<a>${t.data.name}</a>`).join("")
         )
     }
 
     remove(preset) {
+        console.log("remove", preset);
         let index = this.presets.indexOf(preset);
         this.presets.removeAt(index);
-        if (preset == this.curPreset) {
+        if (preset == CurriculaPreset.current) {
             if (this.presets.length == 0) {
                 this.show(null);
             } else {
@@ -77,18 +118,18 @@ class PresetManager {
         }
         $(`#editor-select-user-preset > option:eq(${index})`).remove();
         $(`#preset-selector > option:eq(${index})`).remove();
-        if (this.curPreset) {
-            $("#editor-select-user-preset").val(this.curPreset.name);
-            $("#preset-selector").val(this.curPreset.name);
+        if (CurriculaPreset.current) {
+            $("#editor-select-user-preset").val(CurriculaPreset.current.data.name);
+            $("#preset-selector").val(CurriculaPreset.current.data.name);
         }
     }
 
     switchGlobalPresetByIndex(index) {
-        let preset=this.presets[index];
+        let preset = this.presets[index];
         //涉及到的有：预设显示，预设编辑中的选择，右上角的显示，选课
         //其中选课的只在当前显示选课的时候加载
-        $(".global-preset-select span:eq(1)").text(preset.name);
-        if (preset!=this.curPreset) {
+        $(".global-preset-select span:eq(1)").text(preset.data.name);
+        if (preset != CurriculaPreset.current) {
             this.show(preset);
         }
         //console.log("switchGlobalPreset",preset.name);
@@ -104,27 +145,28 @@ class PresetManager {
     //显示预设，具体到课程类别
     //这里的 preset 是 courseData 的数组
     show(preset, category = CourseCategory.TJKC) {
-        //console.log("show", preset, category);
+        console.log("show", preset, category);
         if (!preset) {
-            this.curPreset = null;
+            CurriculaPreset.current = null;
             $("#preset-course-list > li").remove();
             return;
         }
 
-        if (category == this.curPresetCategory && preset == this.curPreset) return;
+        if (category == this.curPresetCategory && preset == CurriculaPreset.current) return;
 
-        this.curPreset = preset;
-        $("#preset-selector").val(this.curPreset.name);
+        CurriculaPreset.current = preset;
+        $("#preset-selector").val(CurriculaPreset.current.data.name);
 
         this.curPresetCategory = category;
-        let subpreset = preset[category];
+        let subpreset = preset.data[category];
         //需要针对类别讨论
         $("#preset-course-list > div.list-item").remove();
-        if (category != CourseCategory.XGKC) {
-            $("#preset-course-list > div:not(.list-item)").before(
-                `${subpreset.map(t =>
-                    `<div class="list-item" data-cid="${t.cid}">
+        //if (category != CourseCategory.XGKC) {
+        $("#preset-course-list > div:not(.list-item)").before(
+            `${subpreset.map(t =>
+                `<div class="list-item" data-cid="${t.cid}">
                         <div>
+                            <button class="preset-add-class">+</button>
                             <span>${t.cid}</span>
                             <span>${t.cname}</span>
                             <span>${t.ccat}</span>
@@ -133,18 +175,18 @@ class PresetManager {
                         </div>
                         <div class="list">
                             ${t.tcList.map(u =>
-                        `<div class="list-item" data-cno="${u.no}">
+                    `<div class="list-item" data-cno="${u.no}">
                                 <span>${u.no}</span>
                                 ${category == CourseCategory.TYKC ? `<span>${u.sportName}</span>` : ""}
                                 <span>${u.teacher}</span>
                                 <span>${u.teachingPlace}</span>
                             </div>`).join("")}
-                            ${$("template[data-template='preset-add-class']").html()}
+                            
                         </div>
                     </div>`
-                ).join("")}`
-            );
-        } else {
+            ).join("")}`
+        );
+        /*} else {
             $("#preset-course-list > div:not(.list-item)").before(
                 `${subpreset.map(t =>
                     `<div class="list-item" data-cid="${t.cid}">
@@ -160,7 +202,7 @@ class PresetManager {
                     </div>`
                 ).join("")}`
             );
-        }
+        }*/
         //点击事件
         $("#preset-course-list > div.list-item > div.list > div > button").click(function () {
             let inputData = $(this).parent();
@@ -207,17 +249,17 @@ class PresetManager {
 
     loadUserPresets() {
         if (localStorage.getItem("userPresets")) {
-            this.presets = JSON.parse(localStorage.getItem("userPresets"));
+            this.presets = JSON.parse(localStorage.getItem("userPresets")).map(t => new CurriculaPreset(t));
             $("#preset-selector").html(
-                this.presets.map(t => `<option>${t.name}</option>`).join("")
+                this.presets.map(t => `<option>${t.data.name}</option>`).join("")
             );
             $("#editor-select-user-preset").html(
-                this.presets.map(t => `<option>${t.name}</option>`).join("")
+                this.presets.map(t => `<option>${t.data.name}</option>`).join("")
             );
             $(".preset-options").html(
-                this.presets.map(t => `<a>${t.name}</a>`).join("")
+                this.presets.map(t => `<a>${t.data.name}</a>`).join("")
             )
-            $(".global-preset-select span:eq(1)").text(this.presets[0]?.name);
+            $(".global-preset-select span:eq(1)").text(this.presets[0]?.data.name);
         } else {
             this.presets = [];
         }
@@ -225,8 +267,13 @@ class PresetManager {
     }
 
     saveUserPresets() {
-        localStorage.setItem("userPresets", JSON.stringify(this.presets))
+        localStorage.setItem("userPresets", JSON.stringify(this.presets.map(t => t.data)))
+    }
+
+    getPresetByName(name) {
+        return this.presets.find(t => t.data.name == name);
     }
 }
 
-var presetMngr=new PresetManager();
+var presetMngr = new PresetManager();
+var systemPresets= [];

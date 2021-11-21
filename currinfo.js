@@ -11,6 +11,8 @@ class ClassSession {
     tEnd; //结束时间
     classroom; //教室
 
+    static tpDict = new Map();
+
     constructor(week, day, tStart, tEnd, classroom) {
         this.week = week;
         this.day = day;
@@ -45,9 +47,9 @@ class ClassSession {
         let h = getHashCode(this.cid) % 360;
         return (
             `<div class="session-label" style="background-color: hsl(${h},80%,90%); border-color: hsl(${h},50%,80%);">
-            <p>${curriculumDataMap[this.cid].cname}-${this.cno}</p>
+            <p>${CurriculaPreset.getCourse(this.cid).cname}-${this.cno}</p>
             <p>${this.raw[3]}</p>
-            <p>${curriculumDataMap[this.cid].at(this.cno).teacher}</p>
+            <p>${CurriculaPreset.getCourse(this.cid).at(this.cno).teacher}</p>
         </div>`);
     }
 
@@ -55,16 +57,68 @@ class ClassSession {
         let h = getHashCode(this.cid) % 360;
         return (
             `<div class="session-label" style="background-color: hsl(${h},80%,90%); border-color: hsl(${h},50%,80%);">
-            <p>${curriculumDataMap[this.cid].cname}-${this.cno}</p>
+            <p>${CurriculaPreset.getCourse(this.cid).cname}-${this.cno}</p>
             <p>${this.raw[0]}</p>
             <p>${this.raw[1]} ${this.raw[2]}</>
             <p>${this.raw[3]}</p>
-            <p>${curriculumDataMap[this.cid].at(this.cno).teacher}</p>
+            <p>${CurriculaPreset.getCourse(this.cid).at(this.cno).teacher}</p>
         </div>`);
+    }
+
+    //解析教学时间地点的字符串
+    static resolveTeachingPlace(course_id, class_id, teachingPlace) {
+        if (ClassSession.tpDict.has(teachingPlace)) {
+            return ClassSession.tpDict.get(teachingPlace);
+        }
+        //console.log("resolve",teachingPlace);
+        //有一个问题，周后面的内容可能会省略
+        if (!teachingPlace || teachingPlace == "undefined") return [];
+        let sp = teachingPlace.split(",").filter(t => t != undefined).map(str => str.split(" "));
+        for (let i = sp.length - 1; i >= 0; i--) {
+            if (sp[i].length <= 1) sp[i][1] = sp[i + 1][1];
+            if (sp[i].length <= 2) sp[i][2] = sp[i + 1][2];
+            if (sp[i].length <= 3) sp[i][3] = sp[i + 1][3];
+        }
+        ClassSession.tpDict.set(teachingPlace, sp.map(s => {
+            let weekstr;
+            let step = 1;
+            if (s[0].endsWith(")")) {
+                weekstr = s[0].substr(0, s[0].length - 4);
+                step = 2;
+            } else {
+                weekstr = s[0].substr(0, s[0].length - 1);
+            }
+            let [t1, t2] = weekstr.split("-").map(t => parseInt(t));
+            let arr = [];
+            for (; t1 <= t2; t1 += step) {
+                let ses = new ClassSession(
+                    t1,
+                    ClassSession.mapDay(s[1]),
+                    ...(s[2].substr(0, s[2].length - 1).split("-").map(t => parseInt(t) - 1)),
+                    s[3]
+                );
+                ses.cid = course_id;
+                ses.cno = class_id;
+                ses.raw = s;
+                arr.push(ses);
+            }
+            return arr;
+        }).flat().sort((a, b) => compareInt(a.ordinal[0], b.ordinal[0])));
+        return ClassSession.tpDict.get(teachingPlace);
     }
 }
 
+class SubcourseData {
+    cid;
+    cno;
+    cname;
+    teachingPlace;
+    sessions;
+    sessionMask;
+}
+
 class CourseData {
+    //为了便于处理，没有子课程的XGKC也加上tcList
 
     cid;
     cname;
@@ -79,6 +133,12 @@ class CourseData {
         Object.assign(this, o);
     }
 
+    induceSubcourse(no) {
+        let ret = { subcourse: this.at(no) };
+        Object.assign(ret, this);
+        return ret;
+    }
+
     static parseTJKC(json) {
         let ret = new CourseData();
         Object.assign(ret, {
@@ -88,7 +148,7 @@ class CourseData {
             cunit: String(json["KKDW"]),
             ctype: String(json["KCXZ"]),
             credit: Number(json["XF"]),
-            hours: Number(json["hours"]),
+            hours: Number(json["XS"]),
             tcList: json["tcList"].map(t => Object({
                 no: String(t["KXH"]),
                 teacher: String(t["SKJS"]),
@@ -107,7 +167,7 @@ class CourseData {
             cunit: json["KKDW"],
             ctype: json["KCXZ"],
             credit: Number(json["XF"]),
-            hours: Number(json["hours"]),
+            hours: Number(json["XS"]),
             tcList: json["tcList"].map(t => Object({
                 no: t["KXH"],
                 teacher: t["SKJS"],
@@ -119,19 +179,21 @@ class CourseData {
         return ret;
     }
 
-    static parseXGKC(json) {
+    static parseXGKC(json) { //决定不对这个做特别区分
         let ret = new CourseData();
         Object.assign(ret, {
             cid: json["KCH"],
             cname: json["KCM"],
-            cno: json["KXH"],
             ccat: json["KCLB"],
             cunit: json["KKDW"],
             ctype: json["KCXZ"],
             credit: Number(json["XF"]),
-            hours: Number(json["hours"]),
-            teacher: json["SKJS"],
-            teachingPlace: json["teachingPlace"]
+            hours: Number(json["XS"]),
+            tcList: [{
+                no: json["KXH"],
+                teacher: json["SKJS"],
+                teachingPlace: json["teachingPlace"]
+            }]
         });
         return ret;
     }
