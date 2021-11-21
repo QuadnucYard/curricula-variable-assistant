@@ -167,11 +167,9 @@ class Scheduler {
 
         this.curPresetCategory = category;
         let subpreset = preset.data[category];
-        //需要针对类别讨论
-        //if (category != CourseCategory.XGKC) {
-            $("ul.clist").html(
-                `${subpreset.map(u =>
-                    `<li id="${u.cid}">
+        $("ul.clist").html(
+            `${subpreset.map(u =>
+                `<li id="${u.cid}">
                         <div>
                             <span>
                                 <span style="display: inline-block; color: #2C7AD6; width: 5.5em;">${u.cid}</span>
@@ -182,30 +180,14 @@ class Scheduler {
                             </span>
                         </div>
                         <ul>${u.tcList.map(t =>
-                        `<li id="${u.cid}-${t.no}" class="">
+                    `<li id="${u.cid}-${t.no}" class="">
                                 <span class="tag-caption text-center" style="background-color: #13C2C2; width: 1em">${t.no}</span>
-                                <span class="tag-caption text-center" style="background-color: #3498DB; width: ${t.teacher ? Math.floor((t.teacher.length+2)/3)*3 : 3}em">${t.teacher}</span>
+                                <span class="tag-caption text-center" style="background-color: #3498DB; width: ${t.teacher ? Math.floor((t.teacher.length + 2) / 3) * 3 : 3}em">${t.teacher}</span>
                                 <span class="tag-caption" style="background-color: #F39C11">${t.teachingPlace}</span>
                             </li>`).join("")}
                         </ul>
                     </li>`).join("")}`
-            );
-        /*} else {
-            $("ul.clist").html(
-                `${subpreset.map(u =>
-                    `<li id="${u.cid}">
-                        <div>
-                            <span>
-                                <span style="display: inline-block; color: #2C7AD6; width: 5.5em;">${u.cid}</span>
-                                <span style="display: inline-block">${u.cname}</span>
-                            </span>
-                            <span style="float: right">
-                                <span style="display: inline-block; color: #9d3dcf; margin-right: 0.4em;">${u.ctype}</span>
-                            </span>
-                        </div>
-                    </li>`).join("")}`
-            );
-        }*/
+        );
 
         $("ul.clist li div").click(function (event) { scheduler.toggleCourseDisplay($(this).parent().attr("id")); });
         $("ul.clist li ul li").click(function (event) { scheduler.selectCourse1(this.id); });

@@ -241,6 +241,27 @@
                     transition: 0.2s;
                 }
 
+                button.preset-add-class.cancel-add {
+                    background: #e74c3c;
+                }
+                
+                button.preset-add-class.cancel-add:hover {
+                    background: #eb6a5b;
+                }
+
+                div.form-add-class {
+                    margin-left: 2em;
+                }
+                div.form-add-class input:nth-child(1) {
+                    width: 3em;
+                }
+                div.form-add-class input:nth-child(2) {
+                    width: 5em;
+                }
+                div.form-add-class input:nth-child(3) {
+                    width: 30em;
+                }
+
             </style>
             <!-- 工具栏 -->
             <div class="toolbar">
@@ -287,32 +308,6 @@
                 </nav>
 
                 <div id="preset-course-list" class="list" style="line-height: 160%;">
-                    <div data-cid="B07M4010" class="list-item">
-                        <div>
-                            <span>B07M4010</span>
-                            <span>复变函数</span>
-                            <span>数学学院</span>
-                            <span>必修</span>
-                        </div>
-                        <div class="list">
-                            <div class="list-item" data-cno="01">
-                                <span>01</span>
-                                <span>王海兵</span>
-                                <span>1-16周 星期五 3-4节 教四-103</span>
-                            </div>
-                            <div class="list-item" data-cno="02">
-                                <span>02</span>
-                                <span>陈文彦</span>
-                                <span>1-16周 星期五 3-4节 教三-103</span>
-                            </div>
-                            <div>
-                                <input data-cno placeholder="编号" style="width: 60;">
-                                <input data-teacher placeholder="教师" style="width: 100;">
-                                <input data-place placeholder="课程时间地点" style="width: 400;">
-                                <button>增加</button>
-                            </div>
-                        </div>
-                    </div>
                     <div>
                         <b style="display: block;">添加课程</b>
                         <div style="line-height: 250%;">

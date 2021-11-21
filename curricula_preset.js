@@ -161,7 +161,6 @@ class PresetManager { //预设管理器，兼顾编辑器
         let subpreset = preset.data[category];
         //需要针对类别讨论
         $("#preset-course-list > div.list-item").remove();
-        //if (category != CourseCategory.XGKC) {
         $("#preset-course-list > div:not(.list-item)").before(
             `${subpreset.map(t =>
                 `<div class="list-item" data-cid="${t.cid}">
@@ -172,6 +171,8 @@ class PresetManager { //预设管理器，兼顾编辑器
                             <span>${t.ccat}</span>
                             <span>${t.cunit}</span>
                             <span>${t.ctype}</span>
+                            <span>${t.credit}学分</span>
+                            <span>${t.hours}学时</span>
                         </div>
                         <div class="list">
                             ${t.tcList.map(u =>
@@ -181,40 +182,36 @@ class PresetManager { //预设管理器，兼顾编辑器
                                 <span>${u.teacher}</span>
                                 <span>${u.teachingPlace}</span>
                             </div>`).join("")}
-                            
+
                         </div>
                     </div>`
             ).join("")}`
         );
-        /*} else {
-            $("#preset-course-list > div:not(.list-item)").before(
-                `${subpreset.map(t =>
-                    `<div class="list-item" data-cid="${t.cid}">
-                        <div>
-                            <span>${t.cid}</span>
-                            <span>${t.cname}</span>
-                            <span>${t.ccat}</span>
-                            <span>${t.cunit}</span>
-                            <span>${t.ctype}</span>
-                            <span>${t.teacher}</span>
-                            <span>${t.teachingPlace}</span>
-                        </div>
-                    </div>`
-                ).join("")}`
-            );
-        }*/
         //点击事件
-        $("#preset-course-list > div.list-item > div.list > div > button").click(function () {
-            let inputData = $(this).parent();
-            $(this).parent().before(
-                `<div class="list-item" data-cno="${inputData.children("input[data-cno]").val()}">
-                <span>${inputData.children("input[data-cno]").val()}</span>
-                <span>${inputData.children("input[data-teacher]").val()}</span>
-                <span>${inputData.children("input[data-place]").val()}</span>
-            </div>`
-            );
-            //还要处理数据
+        $("#preset-course-list").click(function(e) {
+            //console.log(e);
+            let target=$(e.target);
+            if (target.hasClass("preset-add-class")) { //增加课
+                if (target.hasClass("cancel-add")) {
+                    target.parent().parent().children(":last").remove();
+                } else {
+                    target.parent().parent().append(
+                        `<div class="form-add-class">
+                        <input data-cno placeholder="编号">
+                        <input data-teacher placeholder="教师">
+                        <input data-teachingPlace placeholder="课程时间地点" style="width: 400;">
+                        <button>增加</button>
+                    </div>`
+                    );
+                }
+                target.toggleClass("cancel-add");
+            } else if (e.target.nodeName=="BUTTON" && target.parent().hasClass("form-add-class")) {
+                let data=Object.fromEntries(target.siblings().map((k,p)=>[[Object.keys( $(p).data())[0], $(p).val()]]).get());
+                target.parent().parent().find(".cancel-add").removeClass("cancel-add");
+                target.parent().remove();
+            }
         });
+
         $("#preset-course-list > div > button").click(function () {
             let inputData = $(this).parent();
             console.log(inputData)
@@ -233,18 +230,23 @@ class PresetManager { //预设管理器，兼顾编辑器
                     <input data-place placeholder="课程时间地点" style="width: 400;">
                     <button>增加</button>
                 </div>
-            </div>                    
+            </div>
         </div>`
             );
         });
     }
 
-    addCourse(cdata) {
+    addCourse(cdata) { //增加课程
 
     }
 
-    addClass() {
-
+    addClass(cid,cdata) { //增加课
+        // $(`#preset-course-list list-item[data-cid="${cid}"]`).children(".list").append(
+        // `<div class="list-item" data-cno="${cdata.cno}">
+        //                         <span>${u.no}</span>
+        //                         <span>${u.teacher}</span>
+        //                         <span>${u.place}</span>
+        //                     </div>`);
     }
 
     loadUserPresets() {
