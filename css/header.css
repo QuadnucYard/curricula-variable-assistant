@@ -1,0 +1,72 @@
+header {
+    user-select: none;
+}
+
+header div.left ul {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+    background-color: #333;
+}
+
+header div.left li {
+    float: left;
+    display: block;
+    width: 8em;
+    line-height: 50px;
+    color: white;
+    text-align: center;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+header div.left li:hover:not(.active) {
+    background-color: #111;
+}
+
+header .global-preset-select {
+    user-select: none;
+}
+
+header .global-preset-select span {
+    display: inline-block;
+    width: 80px;
+    height: 100%;
+    color: #edf0e5;
+    background-color: rgb(17, 65, 109);
+    text-align: center;
+    line-height: 50px;
+    user-select: none;
+}
+
+header .global-preset-select span:nth-child(2) {
+    color: #e74c3c;
+    cursor: pointer;
+}
+
+header .preset-options {
+    position: absolute;
+    right: 0;
+    margin-top: 0em;
+    padding: .3em;
+    width: 15em;
+    background: #fff;
+    border-radius: 5px;
+    border: 1px solid rgba(0, 0, 0, .2);
+    color: #333;
+}
+
+header .preset-options a {
+    display: block;
+    padding: .3em;
+    color: #333;
+}
+
+header .preset-options a:hover {
+    background-color: rgb(190, 190, 190);
+}
+
+header .preset-options.hide {
+    display: none;
+}

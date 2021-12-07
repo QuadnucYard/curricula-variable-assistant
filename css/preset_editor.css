@@ -1,0 +1,153 @@
+#tab-preset {
+    margin: auto;
+    padding-top: .5em;
+    width: 65%;
+    background-color: rgb(253, 253, 253);
+}
+
+#tab-preset div.toolbar {
+    display: flex;
+    flex-direction: column;
+    position: fixed;
+    margin-left: -3em;
+    margin-top: 2em;
+}
+
+#tab-preset div.toolbar button {
+    width: 40px;
+    height: 40px;
+    margin-bottom: .4em;
+}
+
+#tab-preset .term-config {
+    margin: .5em;
+    padding: 1em;
+    display: block;
+    box-sizing: border-box;
+    box-shadow: 0 1px 3px #33333342;
+}
+
+#tab-preset .term-config label {
+    margin-left: 1em;
+    margin-right: .2em;
+}
+
+#tab-preset nav.tab-bar {
+    text-align: center;
+    margin-top: 1em;
+    margin-bottom: .5em;
+    user-select: none;
+}
+
+#tab-preset nav.tab-bar>span {
+    width: 8em;
+    display: inline-block;
+    background-color: #f8f8f8;
+    text-align: center;
+    line-height: 2.5em;
+    border-top: 2px solid #d1d1d187;
+    border-bottom: 1px solid #d1d1d187;
+    cursor: pointer;
+}
+
+#tab-preset nav.tab-bar>span:hover {
+    background-color: #ebebeb;
+    transition: 0.3s;
+}
+
+#tab-preset nav.tab-bar>span[current] {
+    background-color: #e0e0e0;
+    transition: 0.2s;
+}
+
+#preset-course-list {
+    font-size: 90%;
+}
+
+#preset-course-list>div {
+    display: block;
+    box-sizing: border-box;
+    box-shadow: 0 1px 3px #33333342;
+    margin: 0em .4em .3em .4em;
+    padding: .4em .8em .4em .8em;
+}
+
+#preset-course-list>div.list-item>div.list {
+    margin-left: 2em;
+}
+
+#preset-course-list>div.list-item>div.list>div.list-item {
+    border-bottom: 1px solid #e8e8e8;
+    line-height: 150%;
+}
+
+#preset-course-list>div.list-item>div.list>div.form {
+    display: flex;
+    margin-top: .5em;
+}
+
+button.preset-add-class {
+    font-family: fantasy;
+    background: #52c41a;
+    border: none;
+    color: white;
+}
+
+button.preset-add-class:hover {
+    background: #6cda35;
+    transition: 0.2s;
+}
+
+button.preset-add-class.cancel-add {
+    background: #3498DB;
+}
+
+button.preset-add-class.cancel-add:hover {
+    background: #63b1e6;
+}
+
+button.preset-remove-course {
+    font-family: fantasy;
+    background: #e74c3c;
+    border: none;
+    color: white;
+}
+
+button.preset-remove-course:hover {
+    background: #f17163;
+    transition: 0.2s;
+}
+
+button.preset-remove-class {
+    font-family: fantasy;
+    background: #e74c3c;
+    border: none;
+    color: white;
+    margin-left: auto;
+}
+
+button.preset-remove-class:hover {
+    background: #e08d84;
+    transition: 0.2s;
+}
+
+div.form-add-class {
+    margin-left: 2em;
+}
+div.form-add-class input:nth-child(1) {
+    width: 3em;
+}
+div.form-add-class input:nth-child(2) {
+    width: 5em;
+}
+div.form-add-class input:nth-child(3) {
+    width: 30em;
+}
+
+#preset-dialog .card {
+    line-height: 200%;
+}
+
+#preset-course-list span {
+    margin-right: 1em;
+}

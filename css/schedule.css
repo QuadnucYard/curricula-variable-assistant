@@ -1,0 +1,26 @@
+.bh-h2,
+.h2 {
+    font-size: 20px;
+    line-height: 20px;
+}
+
+.bh-color-primary {
+    color: #1486e4 !important;
+}
+
+.bh-ph-4 {
+    padding-left: 4px !important;
+    padding-right: 4px !important;
+}
+
+.bh-l-inline {
+    display: inline-block;
+}
+
+.arrow {
+    cursor: pointer;
+    border: solid 1px #2196f3;
+    border-radius: 8px;
+    color: #2196f3;
+    box-sizing: border-box;
+}

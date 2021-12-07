@@ -44,8 +44,8 @@ class CurriculaPresetData {
     static parseXGKC(json) {
         //这里需要注意，应该合并同id的课程
         //但同一id不同no的课程，有些课程信息不一样
-        let tmp=this.#parseRawJson(json).map(t => CourseData.parseXGKC(t));
-        return _.chain(tmp).groupBy("cid").map((t, k)=> Object.assign({},t[0],{tcList: t.map(s=>s.tcList[0])})).value();
+        let tmp = this.#parseRawJson(json).map(t => CourseData.parseXGKC(t));
+        return _.chain(tmp).groupBy("cid").map((t, k) => Object.assign({}, t[0], { tcList: t.map(s => s.tcList[0]) })).value();
     }
 }
 
@@ -78,7 +78,7 @@ class CurriculaPreset {
         //console.log(this.dataMap);
         let course = this.dataMap.get(course_id);
         //console.log(course_id, class_id,course,course.at(class_id))
-        return ClassSession.resolveTeachingPlace(course_id, class_id, course.at(class_id).teachingPlace);
+        return ClassSession.resolveTeachingPlace(course_id, class_id, course.at(class_id).place);
     }
 
     static getCourse(course_id) {
@@ -100,9 +100,9 @@ class PresetManager { //预设管理器，兼顾编辑器
         $("#preset-selector").append(`<option>${presetData.name}</option>`)
         $("#editor-select-user-preset").val(presetData.name);
         this.show(preset);
-        $(".preset-options").html(
-            this.presets.map(t => `<a>${t.data.name}</a>`).join("")
-        )
+        // $(".preset-options").html(
+        //     this.presets.map(t => `<a>${t.data.name}</a>`).join("")
+        // )
     }
 
     remove(preset) {
@@ -148,91 +148,58 @@ class PresetManager { //预设管理器，兼顾编辑器
         console.log("show", preset, category);
         if (!preset) {
             CurriculaPreset.current = null;
-            $("#preset-course-list > li").remove();
             return;
         }
 
         if (category == this.curPresetCategory && preset == CurriculaPreset.current) return;
 
         CurriculaPreset.current = preset;
+        console.log("change current", CurriculaPreset.current, category);
+        vm.currentPreset = preset;
+        vm.currentPresetData = preset.data[category];
         $("#preset-selector").val(CurriculaPreset.current.data.name);
 
         this.curPresetCategory = category;
-        let subpreset = preset.data[category];
-        //需要针对类别讨论
-        $("#preset-course-list > div.list-item").remove();
-        $("#preset-course-list > div:not(.list-item)").before(
-            `${subpreset.map(t =>
-                `<div class="list-item" data-cid="${t.cid}">
-                        <div>
-                            <button class="preset-add-class">+</button>
-                            <span>${t.cid}</span>
-                            <span>${t.cname}</span>
-                            <span>${t.ccat}</span>
-                            <span>${t.cunit}</span>
-                            <span>${t.ctype}</span>
-                            <span>${t.credit}学分</span>
-                            <span>${t.hours}学时</span>
-                        </div>
-                        <div class="list">
-                            ${t.tcList.map(u =>
-                    `<div class="list-item" data-cno="${u.no}">
-                                <span>${u.no}</span>
-                                ${category == CourseCategory.TYKC ? `<span>${u.sportName}</span>` : ""}
-                                <span>${u.teacher}</span>
-                                <span>${u.teachingPlace}</span>
-                            </div>`).join("")}
 
-                        </div>
-                    </div>`
-            ).join("")}`
-        );
         //点击事件
-        $("#preset-course-list").click(function(e) {
+        $("#preset-course-list").click(function (e) {
             //console.log(e);
-            let target=$(e.target);
+            let target = $(e.target);
             if (target.hasClass("preset-add-class")) { //增加课
                 if (target.hasClass("cancel-add")) {
                     target.parent().parent().children(":last").remove();
                 } else {
                     target.parent().parent().append(
                         `<div class="form-add-class">
-                        <input data-cno placeholder="编号">
+                        <input data-no placeholder="编号">
                         <input data-teacher placeholder="教师">
-                        <input data-teachingPlace placeholder="课程时间地点" style="width: 400;">
+                        <input data-place placeholder="课程时间地点" style="width: 600;">
                         <button>增加</button>
                     </div>`
                     );
                 }
                 target.toggleClass("cancel-add");
-            } else if (e.target.nodeName=="BUTTON" && target.parent().hasClass("form-add-class")) {
-                let data=Object.fromEntries(target.siblings().map((k,p)=>[[Object.keys( $(p).data())[0], $(p).val()]]).get());
+            } else if (target.hasClass("preset-remove-course")) {
+                if (confirm("删除课程？")) {
+                    vm.currentPresetData.removeAt(target.parent().parent().index())
+                }
+            } else if (e.target.nodeName == "BUTTON" && target.parent().hasClass("form-add-class")) { //增加课程
+                let data = Object.fromEntries(target.siblings().map((k, p) => [[Object.keys($(p).data())[0], $(p).val()]]).get());
+                vm.currentPresetData[target.parent().parent().index()].tcList.push(data);
                 target.parent().parent().find(".cancel-add").removeClass("cancel-add");
                 target.parent().remove();
+            } else if (target.hasClass("preset-remove-class")) {
+                if (confirm("删除教学班？")) {
+                    vm.currentPresetData[target.parent().parent().parent().index()].tcList.removeAt(target.parent().parent().index()-1);
+                }
             }
         });
 
-        $("#preset-course-list > div > button").click(function () {
-            let inputData = $(this).parent();
-            console.log(inputData)
-            $(this).parent().before(
-                `<div class="list-item" data-cid="${inputData.find("input[data-cid]").val()}">
-            <div>
-                <span>${inputData.find("div input[data-cid]").val()}</span>
-                <span>${inputData.find("input[data-cname]").val()}</span>
-                <span>${inputData.find("input[data-cunit]").val()}</span>
-                <span>${inputData.find("select[data-ctype]").val()}</span>
-            </div>
-            <div class="list">
-                <div>
-                    <input data-cno placeholder="编号" style="width: 60;">
-                    <input data-teacher placeholder="教师" style="width: 100;">
-                    <input data-place placeholder="课程时间地点" style="width: 400;">
-                    <button>增加</button>
-                </div>
-            </div>
-        </div>`
-            );
+        $("#form-add-course button").click(function () {
+            let data = Object.fromEntries($(this).parent().find("input,select").map((k, p) => [[Object.keys($(p).data())[0], $(p).val()]]).get());
+            data["tcList"]=[];
+            console.log(data)
+            vm.currentPresetData.push(data);
         });
     }
 
@@ -240,7 +207,7 @@ class PresetManager { //预设管理器，兼顾编辑器
 
     }
 
-    addClass(cid,cdata) { //增加课
+    addClass(cid, cdata) { //增加课
         // $(`#preset-course-list list-item[data-cid="${cid}"]`).children(".list").append(
         // `<div class="list-item" data-cno="${cdata.cno}">
         //                         <span>${u.no}</span>
@@ -278,4 +245,4 @@ class PresetManager { //预设管理器，兼顾编辑器
 }
 
 var presetMngr = new PresetManager();
-var systemPresets= [];
+var systemPresets = [];

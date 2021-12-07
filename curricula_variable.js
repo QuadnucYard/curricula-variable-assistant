@@ -147,6 +147,8 @@ class Timetable {
 class Scheduler {
     timetable = new Timetable();
     curPresetCategory;
+    scheduleShownMode;
+    curWeek=-1;
 
     switchPreset(preset) {
         if (this.timetable.hostPreset == preset) return;
@@ -183,7 +185,7 @@ class Scheduler {
                     `<li id="${u.cid}-${t.no}" class="">
                                 <span class="tag-caption text-center" style="background-color: #13C2C2; width: 1em">${t.no}</span>
                                 <span class="tag-caption text-center" style="background-color: #3498DB; width: ${t.teacher ? Math.floor((t.teacher.length + 2) / 3) * 3 : 3}em">${t.teacher}</span>
-                                <span class="tag-caption" style="background-color: #F39C11">${t.teachingPlace}</span>
+                                <span class="tag-caption" style="background-color: #F39C11">${t.place}</span>
                             </li>`).join("")}
                         </ul>
                     </li>`).join("")}`
@@ -195,7 +197,7 @@ class Scheduler {
     }
 
     initTimetable() {
-        this.updateTimetable(scheduleShownMode == 0 ? curWeek : 0);
+        this.updateTimetable(this.scheduleShownMode == 0 ? this.curWeek : 0);
     }
 
     updateTimetable(week) {

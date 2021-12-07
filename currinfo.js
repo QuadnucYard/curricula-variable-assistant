@@ -112,7 +112,7 @@ class SubcourseData {
     cid;
     cno;
     cname;
-    teachingPlace;
+    place;
     sessions;
     sessionMask;
 }
@@ -152,7 +152,7 @@ class CourseData {
             tcList: json["tcList"].map(t => Object({
                 no: String(t["KXH"]),
                 teacher: String(t["SKJS"]),
-                teachingPlace: String(t["teachingPlace"]),
+                place: String(t["place"] || t["teachingPlace"]),
             })),
         });
         return ret;
@@ -171,9 +171,9 @@ class CourseData {
             tcList: json["tcList"].map(t => Object({
                 no: t["KXH"],
                 teacher: t["SKJS"],
-                teachingPlace: t["teachingPlace"],
-                sportCode: t["sportCode"],
-                sportName: t["sportName"],
+                place: t["place"] || t["teachingPlace"],
+                sportcode: t["sportCode"],
+                sportname: t["sportName"],
             })),
         });
         return ret;
@@ -192,7 +192,7 @@ class CourseData {
             tcList: [{
                 no: json["KXH"],
                 teacher: json["SKJS"],
-                teachingPlace: json["teachingPlace"]
+                place: json["place"] || json["teachingPlace"]
             }]
         });
         return ret;
