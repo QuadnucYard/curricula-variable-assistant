@@ -445,5 +445,5 @@ ul.course-nav li a:hover:not(.active) {
 }
 
 .hide {
-    display: none;
+    display: none !important;
 }

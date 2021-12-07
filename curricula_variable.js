@@ -171,7 +171,7 @@ class Scheduler {
         let subpreset = preset.data[category];
         $("ul.clist").html(
             `${subpreset.map(u =>
-                `<li id="${u.cid}">
+                `<li data-id="${u.cid}">
                         <div>
                             <span>
                                 <span style="display: inline-block; color: #2C7AD6; width: 5.5em;">${u.cid}</span>
@@ -182,7 +182,7 @@ class Scheduler {
                             </span>
                         </div>
                         <ul>${u.tcList.map(t =>
-                    `<li id="${u.cid}-${t.no}" class="">
+                    `<li data-id="${u.cid}-${t.no}">
                                 <span class="tag-caption text-center" style="background-color: #13C2C2; width: 1em">${t.no}</span>
                                 <span class="tag-caption text-center" style="background-color: #3498DB; width: ${t.teacher ? Math.floor((t.teacher.length + 2) / 3) * 3 : 3}em">${t.teacher}</span>
                                 <span class="tag-caption" style="background-color: #F39C11">${t.place}</span>
@@ -191,8 +191,8 @@ class Scheduler {
                     </li>`).join("")}`
         );
 
-        $("ul.clist li div").click(function (event) { scheduler.toggleCourseDisplay($(this).parent().attr("id")); });
-        $("ul.clist li ul li").click(function (event) { scheduler.selectCourse1(this.id); });
+        $("ul.clist li div").click(function (event) { scheduler.toggleCourseDisplay($(this).parent().data("id")); });
+        $("ul.clist li ul li").click(function (event) { scheduler.selectCourse1(this.dataset.id); });
         this.initTimetable();
     }
 
@@ -205,7 +205,7 @@ class Scheduler {
     }
 
     toggleCourseDisplay(course_id) {
-        let tar = $(`li#${course_id} ul`);
+        let tar = $(`li[data-id="${course_id}"] ul`);
         if (tar.css("display") == "none") tar.css("display", "");
         else tar.css("display", "none");
     }
@@ -218,7 +218,7 @@ class Scheduler {
         //console.log("selectCourse", course_id, class_id);
         //console.log(timetable.getCourseConflicts(course_id, class_id));
         //冲突的更新换个做法，先加上冲突，再上伪冲突
-        let target = $(`li#${course_id}-${class_id}`);
+        let target = $(`li[data-id="${course_id}-${class_id}"]`);
         let selection = this.timetable.getCourseChoice(course_id);
         if (selection != undefined) this.timetable.dropCourse(course_id, selection);
         if (selection != class_id) {
@@ -238,7 +238,7 @@ class Scheduler {
             let selection = this.timetable.getCourseChoice(course.cid);
             //console.log(course);
             for (let cclass of course.tcList) {
-                let target = $(`li#${course.cid}-${cclass.no}`);
+                let target = $(`li[data-id="${course.cid}-${cclass.no}"]`);
                 let conflicts = this.timetable.getCourseConflicts(course.cid, cclass.no);
                 if (conflicts.size == 0 || conflicts.size == 1 && selection == cclass.no) {
                     target.removeClass("conflicting");
@@ -254,6 +254,18 @@ class Scheduler {
         }
         this.initTimetable();
         //timetable.trace();
+    }
+
+    filterCourse(namePattern, hideConflict) {
+        $(".clist li ul li").each((k, t)=> {
+            let tar=$(t);
+            if (namePattern && namePattern!="" && !(tar.children("span:eq(1)").text().includes(namePattern) || tar.children("span:eq(2)").text().includes(namePattern)) 
+                || hideConflict && tar.hasClass("conflicting")) {
+                tar.addClass("hide");
+            } else {
+                tar.removeClass("hide");
+            }
+        })
     }
 }
 

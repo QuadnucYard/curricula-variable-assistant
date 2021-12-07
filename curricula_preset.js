@@ -208,26 +208,15 @@ class PresetManager { //预设管理器，兼顾编辑器
     }
 
     addClass(cid, cdata) { //增加课
-        // $(`#preset-course-list list-item[data-cid="${cid}"]`).children(".list").append(
-        // `<div class="list-item" data-cno="${cdata.cno}">
-        //                         <span>${u.no}</span>
-        //                         <span>${u.teacher}</span>
-        //                         <span>${u.place}</span>
-        //                     </div>`);
+        
     }
 
     loadUserPresets() {
         if (localStorage.getItem("userPresets")) {
             this.presets = JSON.parse(localStorage.getItem("userPresets")).map(t => new CurriculaPreset(t));
-            $("#preset-selector").html(
-                this.presets.map(t => `<option>${t.data.name}</option>`).join("")
-            );
             $("#editor-select-user-preset").html(
                 this.presets.map(t => `<option>${t.data.name}</option>`).join("")
             );
-            $(".preset-options").html(
-                this.presets.map(t => `<a>${t.data.name}</a>`).join("")
-            )
             $(".global-preset-select span:eq(1)").text(this.presets[0]?.data.name);
         } else {
             this.presets = [];

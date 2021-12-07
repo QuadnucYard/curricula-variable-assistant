@@ -26,34 +26,38 @@
 </head>
 
 <body>
-    <header>
-        <!-- <div style="display: inline-block; height: 50px;">
+
+    <div id="app">
+        <header>
+            <!-- <div style="display: inline-block; height: 50px;">
             <img src="image/logo.png" alt="Curricula Variable Assistant!" height="50px" style="float:left;">
         </div> -->
 
-        <!-- 导航按钮 -->
-        <div class="left" style="float: left;">
-            <ul>
-                <li>课程预设</li>
-                <li>模拟选课</li>
-                <li>智能选课</li>
-            </ul>
-        </div>
-        <div class="right global-preset-select" style="float: right;">
-            <span>当前预设</span><span style="width: 10em; text-align: left;">NULL</span>
-            <div class="preset-options" style="display: none;" v-for="item in presetMngr.presets">
-                <a>{{item.data.name}}</a>
+            <!-- 导航按钮 -->
+            <div class="left" style="float: left;">
+                <ul>
+                    <li>课程预设</li>
+                    <li>模拟选课</li>
+                    <li>智能选课</li>
+                </ul>
             </div>
-        </div>
-    </header>
-    <div id="app">
+            <div class="right global-preset-select" style="float: right;">
+                <span>当前预设</span><span style="width: 10em; text-align: left;">NULL</span>
+                <div class="preset-options" style="display: none;">
+                    <template v-for="item in presetMngr.presets">
+                        <a>{{item.data.name}}</a>
+                    </template>
+                </div>
+            </div>
+        </header>
         <div class="tab-area">
             <div id="tab-preset">
                 <!-- 工具栏 -->
                 <div class="toolbar">
                     <button id="btn-edit-preset" title="预设编辑器"
                         style="background-image: url('image/Editor_16x.svg');"></button>
-                    <button id="btn-save-preset" title="保存当前预设" style="background-image: url('image/Save_16x.svg');"></button>
+                    <button id="btn-save-preset" title="保存当前预设"
+                        style="background-image: url('image/Save_16x.svg');"></button>
                 </div>
                 <!-- 学期相关设置 -->
                 <div class="term-config">
@@ -147,7 +151,6 @@
                     <div class="background"></div>
                     <div class="card info-card center">
                         <h3 class="cva-h3">编辑预设</h3>
-
                         <div>
                             <label>系统预设</label>
                             <select id="editor-select-system-preset"></select>
@@ -229,6 +232,20 @@
                         <table class="pure-table pure-table-bordered timetable"></table>
                     </div>
                     <div class="column right">
+                        <div style="margin-top: 1em;">
+                            <el-form :model="schedule-filters" :inline="true" label-width="120px" size="mini">
+                                <el-form-item label="名称筛选">
+                                    <el-input v-model="scheduleFilters.nameFilter"></el-input>
+                                </el-form-item>
+                                <el-form-item label="隐藏冲突课程">
+                                    <el-switch v-model="scheduleFilters.hideConflict"></el-switch>
+                                </el-form-item>
+                                <el-form-item>
+                                    <el-button type="primary" @click="onFilter">确定</el-button>
+                                    <el-button type="primary" @click="onClearFilter">清除</el-button>
+                                </el-form-item>
+                            </el-form>
+                        </div>
                         <div>
                             <ul class="nav course-nav" style="width: auto;">
                                 <li><a href="javascript: void(0)" data-tab="TJKC">系统推荐课程</a></li>
@@ -254,7 +271,11 @@
             data() {
                 return {
                     currentPreset: null,
-                    currentPresetData: null
+                    currentPresetData: null,
+                    scheduleFilters: {
+                        nameFilter: "",
+                        hideConflict: false
+                    }
                 }
             },
             computed: {
@@ -264,7 +285,13 @@
 
             },
             methods: {
-
+                onFilter() {
+                    //console.log("filter", this.scheduleFilters);
+                    scheduler.filterCourse(this.scheduleFilters.nameFilter, this.scheduleFilters.hideConflict);
+                },
+                onClearFilter() {
+                    scheduler.filterCourse(this.scheduleFilters.nameFilter = "", this.scheduleFilters.hideConflict = false);
+                }
             }
         });
         app.use(ElementPlus);
@@ -282,7 +309,7 @@
             template: `
             <div><slot :tt="tt" :test="test"></slot></div>`
         });
-        const vm=app.mount("#app");
+        const vm = app.mount("#app");
 
         // let postdata = {
         //     teachingClassType: "TJKC",
