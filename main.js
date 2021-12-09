@@ -4,17 +4,15 @@ $(document).ready(function () {
     $.ajaxSettings.async = false;
     $.getJSON("system_preset.json", function (data, textStatus) {
         console.log(data, textStatus);
-        systemPresets = data;
+        presetMngr.systemPresets = data;
     });
     // Load system presets
-    $("#editor-select-system-preset").html(
-        systemPresets.map(t => `<option>${t.name}</option>`).join("")
-    );
+    
     // Import preset
     $("#btn-import-system-preset").click(function () {
         let selection = $("#editor-select-system-preset").children('option:selected');
         console.log(selection);
-        presetMngr.add(systemPresets[selection.index()]);
+        presetMngr.add(presetMngr.systemPresets[selection.index()]);
     });
     // Export preset
     $("#btn-export-user-preset").click(function () {
@@ -62,6 +60,9 @@ $(document).ready(function () {
             case 1:
                 scheduler.switchPreset(CurriculaPreset.current);
                 $("#tab-schedule").removeClass("hide").siblings().addClass("hide");
+                break;
+            case 3:
+                $("#tab-user").removeClass("hide").siblings().addClass("hide");
                 break;
         }
     });

@@ -89,6 +89,7 @@ class CurriculaPreset {
 
 //下面需要重写当前预设获取
 class PresetManager { //预设管理器，兼顾编辑器
+    systemPresets=[];
     presets = []; //包装过的预设
 
     curPresetCategory = null;
@@ -96,9 +97,9 @@ class PresetManager { //预设管理器，兼顾编辑器
     add(presetData) {
         let preset = new CurriculaPreset(presetData);
         this.presets.push(preset);
-        $("#editor-select-user-preset").append(`<option>${presetData.name}</option>`)
-        $("#preset-selector").append(`<option>${presetData.name}</option>`)
-        $("#editor-select-user-preset").val(presetData.name);
+        //$("#editor-select-user-preset").append(`<option>${presetData.name}</option>`)
+        //$("#preset-selector").append(`<option>${presetData.name}</option>`)
+        //$("#editor-select-user-preset").val(presetData.name);
         this.show(preset);
         // $(".preset-options").html(
         //     this.presets.map(t => `<a>${t.data.name}</a>`).join("")
@@ -116,8 +117,8 @@ class PresetManager { //预设管理器，兼顾编辑器
                 this.show(index == this.presets.length ? this.presets[index - 1] : this.presets[index]);
             }
         }
-        $(`#editor-select-user-preset > option:eq(${index})`).remove();
-        $(`#preset-selector > option:eq(${index})`).remove();
+        //$(`#editor-select-user-preset > option:eq(${index})`).remove();
+        //$(`#preset-selector > option:eq(${index})`).remove();
         if (CurriculaPreset.current) {
             $("#editor-select-user-preset").val(CurriculaPreset.current.data.name);
             $("#preset-selector").val(CurriculaPreset.current.data.name);
@@ -128,7 +129,7 @@ class PresetManager { //预设管理器，兼顾编辑器
         let preset = this.presets[index];
         //涉及到的有：预设显示，预设编辑中的选择，右上角的显示，选课
         //其中选课的只在当前显示选课的时候加载
-        $(".global-preset-select span:eq(1)").text(preset.data.name);
+        //$(".global-preset-select span:eq(1)").text(preset.data.name);
         if (preset != CurriculaPreset.current) {
             this.show(preset);
         }
@@ -157,7 +158,7 @@ class PresetManager { //预设管理器，兼顾编辑器
         console.log("change current", CurriculaPreset.current, category);
         vm.currentPreset = preset;
         vm.currentPresetData = preset.data[category];
-        $("#preset-selector").val(CurriculaPreset.current.data.name);
+        //$("#preset-selector").val(CurriculaPreset.current.data.name);
 
         this.curPresetCategory = category;
 
@@ -234,4 +235,3 @@ class PresetManager { //预设管理器，兼顾编辑器
 }
 
 var presetMngr = new PresetManager();
-var systemPresets = [];

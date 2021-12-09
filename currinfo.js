@@ -148,7 +148,7 @@ class CourseData {
             cunit: String(json["KKDW"]),
             ctype: String(json["KCXZ"]),
             credit: Number(json["XF"]),
-            hours: Number(json["XS"]),
+            hours: Number(json["XS"] || json["hours"]),
             tcList: json["tcList"].map(t => Object({
                 no: String(t["KXH"]),
                 teacher: String(t["SKJS"]),
@@ -167,7 +167,7 @@ class CourseData {
             cunit: json["KKDW"],
             ctype: json["KCXZ"],
             credit: Number(json["XF"]),
-            hours: Number(json["XS"]),
+            hours: Number(json["XS"] || json["hours"]),
             tcList: json["tcList"].map(t => Object({
                 no: t["KXH"],
                 teacher: t["SKJS"],
@@ -188,7 +188,7 @@ class CourseData {
             cunit: json["KKDW"],
             ctype: json["KCXZ"],
             credit: Number(json["XF"]),
-            hours: Number(json["XS"]),
+            hours: Number(json["XS"] || json["hours"]),
             tcList: [{
                 no: json["KXH"],
                 teacher: json["SKJS"],

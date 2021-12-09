@@ -39,6 +39,7 @@
                     <li>课程预设</li>
                     <li>模拟选课</li>
                     <li>智能选课</li>
+                    <li>用户</li>
                 </ul>
             </div>
             <div class="right global-preset-select" style="float: right;">
@@ -110,7 +111,7 @@
                                     <div class="list" v-for="u in t.tcList">
                                         <div class="list-item" :data-cno="u.no" style="display: flex;">
                                             <span>{{u.no}}</span>
-                                            <span v-if="u.sportname">{{u.sportname!=null}}</span>
+                                            <span v-if="u.sportname">{{u.sportname}}</span>
                                             <span>{{u.teacher}}</span>
                                             <span>{{u.place}}</span>
                                             <button class="preset-remove-class">-</button>
@@ -150,44 +151,48 @@
                 <div id="preset-dialog" class="modal hide">
                     <div class="background"></div>
                     <div class="card info-card center">
-                        <h3 class="cva-h3">编辑预设</h3>
-                        <div>
-                            <label>系统预设</label>
-                            <select id="editor-select-system-preset"></select>
-                            <button id="btn-import-system-preset">导入预设</button>
-                        </div>
-                        <div>
-                            <label>用户预设</label>
-                            <select id="editor-select-user-preset"></select>
-                            <button id="btn-import-user-preset">导入预设</button>
-                            <button id="btn-export-user-preset">导出预设</button>
-                            <button id="btn-save-user-preset">保存预设</button>
-                            <button id="btn-remove-user-preset">删除预设</button>
-                        </div>
-                        <hr>
-                        <div>
-                            <input type="text" id="txt-preset-name">
-                            <button id="btn-create-user-preset">新建预设</button>
-                            <nav>
-                                <span>推荐课程</span>
-                                <span>体育课</span>
-                                <span>通选课</span>
-                            </nav>
-                            <div>
-                                <textarea class="data-input" spellcheck="false"
-                                    style="height: 100px; width: 100%;"></textarea>
-                                <textarea class="data-input" spellcheck="false"
-                                    style="height: 100px; width: 100%; display: none;"></textarea>
-                                <textarea class="data-input" spellcheck="false"
-                                    style="height: 100px; width: 100%; display: none;"></textarea>
-                            </div>
-                        </div>
-                        <hr>
-                        <div>
-                            <label style="display: block;">导入/导出</label>
-                            <textarea id="txt-preset" class="data-input" spellcheck="false"
-                                style="height: 150px; width: 100%; "></textarea>
-                        </div>
+                        <el-form :model="editorForm" size="mini">
+                            <h3 class="cva-h3">编辑预设</h3>
+                            <el-form-item label="系统预设">
+                                <el-select v-model="editorForm.selectedSystemPreset">
+                                    <el-option v-for="p in presetMngr.systemPresets" :label="p.name" :value="p.name">
+                                    </el-option>
+                                </el-select>
+                                <el-button type="default" @click="importSystemPreset">导入系统预设</el-button>
+                            </el-form-item>
+                            <el-form-item label="用户预设">
+                                <el-select>
+                                    <template v-for="p in presetMngr.presets">
+                                        <el-option :label="p.data.name"></el-option>
+                                    </template>
+                                </el-select>
+                                <el-button type="default">删除预设</el-button>
+                                <el-button type="default" @click="importPresetString">导入预设</el-button>
+                                <el-button type="default" @click="exportPresetString">导出预设</el-button>
+                                <el-button type="default" @click="importAllPresetString">导入所有预设</el-button>
+                                <el-button type="default" @click="exportAllPresetString">导出所有预设</el-button>
+                            </el-form-item>
+                            <el-form-item label="新建预设" :inline="true">
+                                <el-input v-model="editorForm.presetName" placeholder="预设名"></el-input>
+                                <el-button type="default" :icon="Plus" @click="createPreset"></el-button>
+                            </el-form-item>
+                            <el-tabs type="border-card">
+                                <el-tab-pane label="推荐课程">
+                                    <el-input type="textarea" v-model="editorForm.inputJson[0]" rows="5"></el-input>
+                                </el-tab-pane>
+                                <el-tab-pane label="体育课">
+                                    <el-input type="textarea" v-model="editorForm.inputJson[1]" rows="5"></el-input>
+                                </el-tab-pane>
+                                <el-tab-pane label="通选课">
+                                    <el-input type="textarea" v-model="editorForm.inputJson[2]" rows="5"></el-input>
+                                </el-tab-pane>
+                            </el-tabs>
+                            <el-form-item label="导入/导出" label-position="top">
+                                <el-input type="textarea" v-model="editorForm.inoutString" rows="5"></el-input>
+                            </el-form-item>
+
+                        </el-form>
+
                         <div style="margin-top: 5px;">
                             <span style="float: right; margin-left: 10px;">
                                 <button class="cva-form-sz-middle cancel"
@@ -257,6 +262,10 @@
                     </div>
                 </div>
             </div>
+
+            <div id="tab-user" class="hide">
+
+            </div>
         </div>
 
         <div class="footer">
@@ -272,6 +281,12 @@
                 return {
                     currentPreset: null,
                     currentPresetData: null,
+                    editorForm: {
+                        selectedSystemPreset: "",
+                        presetName: "",
+                        inputJson: ["", "", ""],
+                        inoutString: ""
+                    },
                     scheduleFilters: {
                         nameFilter: "",
                         hideConflict: false
@@ -285,6 +300,32 @@
 
             },
             methods: {
+                importPresetString() {
+                    console.log(this.editorForm.inoutString);
+                },
+                exportPresetString() {
+                    this.editorForm.inoutString = JSON.stringify(this.currentPreset.data);
+                },
+                importAllPresetString() {
+                    console.log(this.editorForm.inoutString);
+                },
+                exportAllPresetString() {
+                    this.editorForm.inoutString = JSON.stringify(presetMngr.presets.map(t => t.data));
+                },
+                importSystemPreset() {
+                    presetMngr.add(presetMngr.systemPresets.find(t => t.name == this.editorForm.selectedSystemPreset));
+                },
+                createPreset() {
+                    //console.log(this.editorForm.inputJson);
+                    let preset = new CurriculaPresetData(this.editorForm.presetName, {
+                        TJKC: this.editorForm.inputJson[0],
+                        TYKC: this.editorForm.inputJson[1],
+                        XGKC: this.editorForm.inputJson[2]
+                    });
+                    presetMngr.add(preset);
+                    this.editorForm.presetName = "";
+                },
+
                 onFilter() {
                     //console.log("filter", this.scheduleFilters);
                     scheduler.filterCourse(this.scheduleFilters.nameFilter, this.scheduleFilters.hideConflict);
@@ -311,6 +352,7 @@
         });
         const vm = app.mount("#app");
 
+        // 改 grablessonsVue.pubParam.pageSize = 100
         // let postdata = {
         //     teachingClassType: "TJKC",
         //     pageNumber: 1,
