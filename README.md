@@ -6,7 +6,7 @@ A webpage assisting you with your curriculum arrangement.
 网页版：[https://quadnucyard.github.io/curricula-variable-assistant/index.html](https://quadnucyard.github.io/curricula-variable-assistant/index.html)
 
 ## 使用方法
-在选课页面打开 F12，在[网络]中找到名为 `list` 的文件，复制其"响应"中的 JSON 数据，粘贴到输入数据的对话框，即可导入。
+（待完善）
 
 导入数据后可建立课程列表，选择课程即可更新课程表，会检查冲突。点选择的课程即退选。
 
@@ -23,3 +23,10 @@ A webpage assisting you with your curriculum arrangement.
 
 ### v0.3.1
 继续完善课程的手动增删
+
+### v0.3.2 - 2021.12.9
+适配最新版，配合用户脚本能从选课网站加载数据，但是又有课表冲突显示的bug。
+
+# TODO List
+1. 重写时间表的代码，修复一堆bug并支持保存。
+2. 优化各种UI。
