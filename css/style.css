@@ -447,3 +447,13 @@ ul.course-nav li a:hover:not(.active) {
 .hide {
     display: none !important;
 }
+
+.cv-login {
+    position: relative;
+    margin: 0 auto;
+    min-height: 440px;
+    background-color: #fff;
+    padding: 38px 24px 20px 24px;
+    color: #444;
+    border-radius: 8px;
+}

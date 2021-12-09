@@ -65,8 +65,8 @@ class CurriculaPreset {
 
     init() {
         //初始化操作，需要解析数据中的所有课
-        console.log("init");
-        console.log(this.data);
+        //console.log("init");
+        //console.log(this.data);
         this.data.TJKC?.forEach(t => this.dataMap.set(t.cid, new CourseData(t)));
         this.data.TYKC?.forEach(t => this.dataMap.set(t.cid, new CourseData(t)));
         this.data.XGKC?.forEach(t => this.dataMap.set(t.cid, new CourseData(t)));
@@ -168,11 +168,17 @@ class PresetManager { //预设管理器，兼顾编辑器
             
         });
 
-        $("#form-add-course button").click(function () {
+        $("#form-add-course button:eq(0)").click(function () {
             let data = Object.fromEntries($(this).parent().find("input,select").map((k, p) => [[Object.keys($(p).data())[0], $(p).val()]]).get());
             data["tcList"]=[];
             console.log(data)
             vm.currentPresetData.push(data);
+        });
+        $("#form-add-course button:eq(1)").click(function() {
+            let inputstr= prompt("输入原始json");
+            console.log(inputstr);
+            console.log();
+            vm.currentPresetData.push(CourseData.parseALLKC(JSON.parse(inputstr)));
         });
     }
 

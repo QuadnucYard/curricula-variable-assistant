@@ -53,6 +53,14 @@
     $("footer").append(btn1).append(btn2).append(btn3);
     $("footer").append(`<div><textarea id="datadata"></textarea></div>`);
 
+    let txtIndex=$(`<input type="text" id="txt-index" autocomplete="off" placeholder="请输入该课程本页序号" class="el-input__inner" style="width:400px"></input>`);
+    let btn4=$(`<button type="button" class="el-button el-button--primary">获取单一课程数据</button>`).click(function(e) {
+        $("#datadata2").val(JSON.stringify(grablessonsVue.courseList[$("#txt-index").val()]));
+    });
+    $("footer").append(btn4).append(txtIndex);
+
+    $("footer").append(`<div><textarea id="datadata2"></textarea></div>`);
+
     function showdata(obj) {
         $("#datadata").val(JSON.stringify(obj));
         ElementPlus.ElMessage({

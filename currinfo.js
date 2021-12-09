@@ -197,5 +197,24 @@ class CourseData {
         });
         return ret;
     }
+
+    static parseALLKC(json) { //全校课程中查询到的
+        let ret = new CourseData();
+        Object.assign(ret, {
+            cid: json["KCH"],
+            cname: json["KCM"],
+            ccat: json["KCLB"],
+            cunit: json["KKDW"],
+            ctype: json["KCXZ"],
+            credit: Number(json["XF"]),
+            hours: Number(json["XS"] || json["hours"]),
+            tcList: [{
+                no: json["KXH"],
+                teacher: json["SKJS"],
+                place: json["place"] || json["teachingPlace"]
+            }]
+        });
+        return ret;
+    }
 }
 

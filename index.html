@@ -17,7 +17,7 @@
     <script src="//unpkg.com/vue@next"></script>
     <!-- 导入组件库 -->
     <script src="//unpkg.com/element-plus"></script>
-    <!-- <script src="https://unpkg.com/axios/dist/axios.min.js"></script> -->
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
     <!-- js -->
     <script src="currinfo.js"></script>
     <script src="curricula_variable.js"></script>
@@ -44,7 +44,7 @@
             </div>
             <div class="right global-preset-select" style="float: right;">
                 <span>当前预设</span><span style="width: 10em; text-align: left;">NULL</span>
-                <div class="preset-options" style="display: none;">
+                <div class="preset-options" style="display: none; z-index: 1;">
                     <template v-for="item in presetMngr.presets">
                         <a>{{item.data.name}}</a>
                     </template>
@@ -92,7 +92,7 @@
                     <div id="preset-course-list" class="list" style="line-height: 160%;">
                         <div v-if="currentPreset==null">NULL preset</div>
                         <template v-if="currentPresetData">
-                            <template v-for="t in currentPresetData">
+                            <template v-for="(t, i) in currentPresetData">
                                 <div class="list-item" :data-cid="t.cid">
                                     <div style="display: flex; margin-bottom: .2em;">
                                         <span>{{t.cid}}</span>
@@ -103,6 +103,7 @@
                                         <span>{{t.credit}}学分</span>
                                         <span>{{t.hours}}学时</span>
                                         <button class="preset-add-class" style="margin-left: auto;"
+                                            :class="{'cancel-add' : editingIndex==i}"
                                             @click="onEditCourse">+</button>
                                         <button class="preset-remove-course" @click="onEditCourse">-</button>
                                         <!-- <test-comp v-slot:default="slotProps">
@@ -117,6 +118,12 @@
                                             <span>{{u.place}}</span>
                                             <button class="preset-remove-class" @click="onEditCourse">-</button>
                                         </div>
+                                    </div>
+                                    <div class="form-add-class" v-if="editingIndex==i">
+                                        <input data-no placeholder="编号">
+                                        <input data-teacher placeholder="教师">
+                                        <input data-place placeholder="课程时间地点" style="width: 600;">
+                                        <button @click="onEditCourse">增加</button>
                                     </div>
                                 </div>
                             </template>
@@ -145,6 +152,7 @@
                                 <input type="text" data-hours value="" style="width: 60;">
                             </div>
                             <button>确定</button>
+                            <button>直接导入原始json（来自全校课程查询）</button>
                         </div>
                     </div>
                 </div>
@@ -265,7 +273,49 @@
             </div>
 
             <div id="tab-user" class="hide">
-
+                <div class="cv-login" id="loginDiv" v-if="!isLogined" style="width: 30%;">
+                    <h2>登录</h2>
+                    <div class="sub-title">
+                        <div>LOGIN</div>
+                        <div>选课系统请输入用户</div>
+                    </div>
+                    <div id="loginNameDiv">
+                        <el-input placeholder="请输入一卡通号" @keyup.enter.native="login" v-model="loginForm.name">
+                            <template slot="prepend"><i class="el-icon-user-solid"></i></template>
+                        </el-input>
+                    </div>
+                    <div id="loginPwdDiv">
+                        <el-input placeholder="请输入密码" type="password" @keyup.enter.native="login"
+                            v-model="loginForm.password">
+                            <template slot="prepend"><i class="el-icon-s-goods"></i></template>
+                        </el-input>
+                    </div>
+                    <div class="cv-verification-code" :vodeType="loginForm.vodeType">
+                        <el-row v-if="loginForm.vodeType != '2'">
+                            <el-col :span="16">
+                                <el-input id="verifyCode" @keyup.enter.native="login" v-model="loginForm.verifyCode"
+                                    placeholder="验证码">
+                                </el-input>
+                            </el-col>
+                            <el-col :span="8">
+                                <img @click="initCaptcha" id="vcodeImg" :src="loginForm.verifyCodeUrl">
+                            </el-col>
+                        </el-row>
+                        <el-row v-else>
+                            <el-col :span="24" class="verifynewcontainer">
+                                <img @click="clickCaptcha" id="vcodeImg" :src="loginForm.verifyCodeUrl">
+                                <i @click="initCaptcha" class="verify-refresh el-icon-refresh"></i>
+                                <template v-for="(verifyObj, index) in loginForm.verifyResult">
+                                    <div class="yidun_icon-point" :class="'yidun_point-' + (index + 1)"
+                                        :style="{left:(verifyObj.left - 13) + 'px', top:(verifyObj.top - 33) + 'px'}">
+                                    </div>
+                                </template>
+                            </el-col>
+                        </el-row>
+                    </div>
+                    <!--<el-button class="longin-button" type="primary" round @click="login">{{ $t("login.signIn") }}</el-button>-->
+                    <el-button class="longin-button" type="primary" round @click="login">登 录</el-button>
+                </div>
             </div>
         </div>
 
@@ -280,6 +330,15 @@
         const app = Vue.createApp({
             data() {
                 return {
+                    isLogined: false,
+                    loginForm: {
+                        name: "",
+                        password: "",
+                        uuid: "",
+                        vodeType: "1",
+                        verifyCode: "",
+                        verifyCodeUrl: "",
+                    },
                     currentPreset: null,
                     currentPresetData: null,
                     editorForm: {
@@ -288,11 +347,16 @@
                         inputJson: ["", "", ""],
                         inoutString: ""
                     },
+                    editingIndex: -1,
                     scheduleFilters: {
                         nameFilter: "",
                         hideConflict: false
                     }
                 }
+            },
+            created() {
+                axios.defaults.baseURL = "http:\/\/newxk.urp.seu.edu.cn\/xsxk";
+                window.axiosKey = 'Authorization';
             },
             computed: {
                 presetMngr: function () {
@@ -301,6 +365,7 @@
 
             },
             methods: {
+
                 importPresetString() {
                     console.log(this.editorForm.inoutString);
                 },
@@ -336,35 +401,70 @@
                 },
                 onEditCourse(e) {
                     let target = $(e.target);
-                    console.log(e.nodeName)
                     if (target.hasClass("preset-add-class")) { //增加课
-                        if (target.hasClass("cancel-add")) {
-                            target.parent().parent().children(":last").remove();
+                        if (this.editingIndex==-1) {
+                            this.editingIndex=target.parent().parent().index();
                         } else {
-                            target.parent().parent().append(
-                                `<div class="form-add-class">
-                        <input data-no placeholder="编号">
-                        <input data-teacher placeholder="教师">
-                        <input data-place placeholder="课程时间地点" style="width: 600;">
-                        <button>增加</button>
-                    </div>`
-                            );
+                            this.editingIndex=-1;
                         }
-                        target.toggleClass("cancel-add");
                     } else if (target.hasClass("preset-remove-course")) {
                         //if (confirm("删除课程？")) {
                         vm.currentPresetData.removeAt(target.parent().parent().index())
                         //}
                     } else if (e.target.nodeName == "BUTTON" && target.parent().hasClass("form-add-class")) { //增加课程
                         let data = Object.fromEntries(target.siblings().map((k, p) => [[Object.keys($(p).data())[0], $(p).val()]]).get());
-                        vm.currentPresetData[target.parent().parent().index()].tcList.push(data);
-                        target.parent().parent().find(".cancel-add").removeClass("cancel-add");
-                        target.parent().remove();
+                        vm.currentPresetData[this.editingIndex].tcList.push(data);
+                        this.editingIndex=-1;
                     } else if (target.hasClass("preset-remove-class")) {
                         //if (confirm("删除教学班？")) {
                         vm.currentPresetData[target.parent().parent().parent().index()].tcList.removeAt(target.parent().parent().index() - 1);
                         //}
                     }
+                },
+
+                initCaptcha() {
+                    let self=this;
+                    axios.post("/auth/captcha", {}).then(function (e) {
+                        let _data = e.data.data;
+                        self.loginForm.uuid = _data.uuid;
+                        self.loginForm.vodeType = _data.type;
+                        self.loginForm.verifyCodeUrl = _data.captcha;
+                    });
+                },
+                login() {
+
+                    /*var param = {
+                        loginname: this.loginForm.name,
+                        password: aesUtil.encrypt(this.loginForm.password, this.loginForm.aesKey),
+                        captcha: captcha,
+                        uuid: this.loginForm.uuid
+                    };*/
+                    let param = {
+                        loginname: "213200255",
+                        password: "qxaNHoMTbKkbL623kTHbXA==",
+                        captcha: this.loginForm.verifyCode,
+                        uuid: this.loginForm.uuid
+                    };
+                    console.log(param);
+                    let _this=this;
+                    axios.post("/auth/login", param).then(function (res) {
+                        console.log(res);
+                        /*if (res.data.code == 200) {
+                            axios.defaults.headers[window.axiosKey] = res.data.data.token;
+                            sessionStorage.setItem("token", res.data.data.token);
+                            _this.studentInfo = res.data.data.student;
+                            _this.lcParam.electiveBatchList = _this.studentInfo.electiveBatchList ? _this.studentInfo.electiveBatchList : [];
+                            _this.lcParam.expElectiveBatchList = _this.studentInfo.expElectiveBatchList ? _this.studentInfo.expElectiveBatchList : [];
+                            _this.isLogined = true;
+                            _this.changeBatch("select");
+                            _this.$nextTick(function () {
+                                _this.initXfCanvas()
+                            })
+                        } else {
+                            _this.loginForm.verifyCode = "";
+                            _this.initCaptcha()
+                        }*/
+                    })
                 }
             }
         });
@@ -384,6 +484,7 @@
             <div><slot :tt="tt" :test="test"></slot></div>`
         });
         const vm = app.mount("#app");
+        vm.initCaptcha();
 
         // 改 grablessonsVue.pubParam.pageSize = 100
         let postdata = {

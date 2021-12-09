@@ -178,12 +178,14 @@ class Scheduler {
                                 <span style="display: inline-block">${u.cname}</span>
                             </span>
                             <span style="float: right">
+                                <span style="display: inline-block; color: #9d3dcf; margin-right: 0.4em;">${u.hours}/${u.credit}</span>
                                 <span style="display: inline-block; color: #9d3dcf; margin-right: 0.4em;">${u.ctype}</span>
                             </span>
                         </div>
                         <ul>${u.tcList.map(t =>
                     `<li data-id="${u.cid}-${t.no}">
                                 <span class="tag-caption text-center" style="background-color: #13C2C2; width: 1em">${t.no}</span>
+                                ${t.sportname ? `<span class="tag-caption text-center" style="background-color: #3498DB;">${t.sportname}</span>` : ""}
                                 <span class="tag-caption text-center" style="background-color: #3498DB; width: ${t.teacher ? Math.floor((t.teacher.length + 2) / 3) * 3 : 3}em">${t.teacher}</span>
                                 <span class="tag-caption" style="background-color: #F39C11">${t.place}</span>
                             </li>`).join("")}
