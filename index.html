@@ -102,8 +102,9 @@
                                         <span>{{t.ctype}}</span>
                                         <span>{{t.credit}}学分</span>
                                         <span>{{t.hours}}学时</span>
-                                        <button class="preset-add-class" style="margin-left: auto;">+</button>
-                                        <button class="preset-remove-course">-</button>
+                                        <button class="preset-add-class" style="margin-left: auto;"
+                                            @click="onEditCourse">+</button>
+                                        <button class="preset-remove-course" @click="onEditCourse">-</button>
                                         <!-- <test-comp v-slot:default="slotProps">
                                             <button @click="slotProps.test">{{slotProps.tt}}</button>
                                         </test-comp> -->
@@ -114,7 +115,7 @@
                                             <span v-if="u.sportname">{{u.sportname}}</span>
                                             <span>{{u.teacher}}</span>
                                             <span>{{u.place}}</span>
-                                            <button class="preset-remove-class">-</button>
+                                            <button class="preset-remove-class" @click="onEditCourse">-</button>
                                         </div>
                                     </div>
                                 </div>
@@ -332,6 +333,38 @@
                 },
                 onClearFilter() {
                     scheduler.filterCourse(this.scheduleFilters.nameFilter = "", this.scheduleFilters.hideConflict = false);
+                },
+                onEditCourse(e) {
+                    let target = $(e.target);
+                    console.log(e.nodeName)
+                    if (target.hasClass("preset-add-class")) { //增加课
+                        if (target.hasClass("cancel-add")) {
+                            target.parent().parent().children(":last").remove();
+                        } else {
+                            target.parent().parent().append(
+                                `<div class="form-add-class">
+                        <input data-no placeholder="编号">
+                        <input data-teacher placeholder="教师">
+                        <input data-place placeholder="课程时间地点" style="width: 600;">
+                        <button>增加</button>
+                    </div>`
+                            );
+                        }
+                        target.toggleClass("cancel-add");
+                    } else if (target.hasClass("preset-remove-course")) {
+                        //if (confirm("删除课程？")) {
+                        vm.currentPresetData.removeAt(target.parent().parent().index())
+                        //}
+                    } else if (e.target.nodeName == "BUTTON" && target.parent().hasClass("form-add-class")) { //增加课程
+                        let data = Object.fromEntries(target.siblings().map((k, p) => [[Object.keys($(p).data())[0], $(p).val()]]).get());
+                        vm.currentPresetData[target.parent().parent().index()].tcList.push(data);
+                        target.parent().parent().find(".cancel-add").removeClass("cancel-add");
+                        target.parent().remove();
+                    } else if (target.hasClass("preset-remove-class")) {
+                        //if (confirm("删除教学班？")) {
+                        vm.currentPresetData[target.parent().parent().parent().index()].tcList.removeAt(target.parent().parent().index() - 1);
+                        //}
+                    }
                 }
             }
         });
@@ -353,12 +386,13 @@
         const vm = app.mount("#app");
 
         // 改 grablessonsVue.pubParam.pageSize = 100
-        // let postdata = {
-        //     teachingClassType: "TJKC",
-        //     pageNumber: 1,
-        //     pageSize: 1000,
-        //     orderBy: ""
-        // }
+        let postdata = {
+            teachingClassType: "TJKC",
+            pageNumber: 1,
+            pageSize: 1000,
+            orderBy: "",
+            campus: "1"
+        };
         // axios.post("http://newxk.urp.seu.edu.cn/xsxk/auth/captcha", postdata).then(function (e) {
         //     //console.log(e.data);
         //     console.log(e.data.data.uuid);
@@ -376,21 +410,21 @@
         //         console.log(e);
         //     });
         // });
-        // axios.post("http://newxk.urp.seu.edu.cn/xsxk/elective/clazz/list", postdata).then(function (e) {
-        //     var a = e.data;
-        //     console.log(e);
-        //     // if (a && 200 == a.code) {
-        //     // 	if (s.catchCourseList = a.data.rows, t) {
-        //     // 		if (s.catchCourseList.length > 0) for (var i = 0; i < s.catchCourseList.length; i++) s.courseList.push(s.catchCourseList[i])
-        //     // 	} else {
-        //     // 		var r = s.pubParam.pageNumber % s.pubParam.pageCacheNumber;
-        //     // 		0 == r && (r = s.pubParam.pageCacheNumber);
-        //     // 		for (var c = s.pubParam.pageSize * (r - 1), o = s.pubParam.pageSize * r, l = c; l < o && s.catchCourseList[l]; l++) s.courseList.push(s.catchCourseList[l])
-        //     // 	}
-        //     // 	s.pubParam.totalNumber = a.data.total,
-        //     // 		s.pubParam.isScrolling = !1
-        //     // } else s.pubParam.isScrolling = !1
-        // });
+        axios.post("http://newxk.urp.seu.edu.cn/xsxk/elective/clazz/list", postdata).then(function (e) {
+            var a = e.data;
+            console.log(e);
+            // if (a && 200 == a.code) {
+            // 	if (s.catchCourseList = a.data.rows, t) {
+            // 		if (s.catchCourseList.length > 0) for (var i = 0; i < s.catchCourseList.length; i++) s.courseList.push(s.catchCourseList[i])
+            // 	} else {
+            // 		var r = s.pubParam.pageNumber % s.pubParam.pageCacheNumber;
+            // 		0 == r && (r = s.pubParam.pageCacheNumber);
+            // 		for (var c = s.pubParam.pageSize * (r - 1), o = s.pubParam.pageSize * r, l = c; l < o && s.catchCourseList[l]; l++) s.courseList.push(s.catchCourseList[l])
+            // 	}
+            // 	s.pubParam.totalNumber = a.data.total,
+            // 		s.pubParam.isScrolling = !1
+            // } else s.pubParam.isScrolling = !1
+        });
     </script>
 </body>
 

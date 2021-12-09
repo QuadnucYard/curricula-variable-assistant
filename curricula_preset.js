@@ -165,35 +165,7 @@ class PresetManager { //预设管理器，兼顾编辑器
         //点击事件
         $("#preset-course-list").click(function (e) {
             //console.log(e);
-            let target = $(e.target);
-            if (target.hasClass("preset-add-class")) { //增加课
-                if (target.hasClass("cancel-add")) {
-                    target.parent().parent().children(":last").remove();
-                } else {
-                    target.parent().parent().append(
-                        `<div class="form-add-class">
-                        <input data-no placeholder="编号">
-                        <input data-teacher placeholder="教师">
-                        <input data-place placeholder="课程时间地点" style="width: 600;">
-                        <button>增加</button>
-                    </div>`
-                    );
-                }
-                target.toggleClass("cancel-add");
-            } else if (target.hasClass("preset-remove-course")) {
-                if (confirm("删除课程？")) {
-                    vm.currentPresetData.removeAt(target.parent().parent().index())
-                }
-            } else if (e.target.nodeName == "BUTTON" && target.parent().hasClass("form-add-class")) { //增加课程
-                let data = Object.fromEntries(target.siblings().map((k, p) => [[Object.keys($(p).data())[0], $(p).val()]]).get());
-                vm.currentPresetData[target.parent().parent().index()].tcList.push(data);
-                target.parent().parent().find(".cancel-add").removeClass("cancel-add");
-                target.parent().remove();
-            } else if (target.hasClass("preset-remove-class")) {
-                if (confirm("删除教学班？")) {
-                    vm.currentPresetData[target.parent().parent().parent().index()].tcList.removeAt(target.parent().parent().index()-1);
-                }
-            }
+            
         });
 
         $("#form-add-course button").click(function () {
