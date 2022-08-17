@@ -5,6 +5,8 @@ A webpage assisting you with your curriculum arrangement.
 帮你选出不冲突的课程
 网页版：[https://quadnucyard.github.io/curricula-variable-assistant/index.html](https://quadnucyard.github.io/curricula-variable-assistant/index.html)
 
+请使用用户脚本（[grablessons.user.js](https://github.com/QuadnucYard/curricula-variable-assistant/blob/master/grablessons.user.js)）获取自己的课程数据并载入小工具。
+
 ## 使用方法
 （待完善）
 
