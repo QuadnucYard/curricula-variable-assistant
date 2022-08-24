@@ -5,7 +5,10 @@ A webpage assisting you with your curriculum arrangement.
 帮你选出不冲突的课程
 网页版：[https://quadnucyard.github.io/curricula-variable-assistant/index.html](https://quadnucyard.github.io/curricula-variable-assistant/index.html)
 
-请使用用户脚本（[grablessons.user.js](https://github.com/QuadnucYard/curricula-variable-assistant/blob/master/grablessons.user.js)）获取自己的课程数据并载入小工具。
+本项目已不再维护！！！新版请转至 [https://github.com/QuadnucYard/curricula-arrangement-helper](https://github.com/QuadnucYard/curricula-arrangement-helper) （仍在开发中）
+
+请使用用户脚本（[grablessons.user.js](https://github.com/QuadnucYard/curricula-variable-assistant/raw/master/grablessons.user.js)）获取自己的课程数据并载入小工具。  
+需要预装油猴插件，点击上面链接即可自动进入安装页面。
 
 ## 使用方法
 （待完善）
