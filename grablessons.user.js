@@ -162,4 +162,13 @@
       e.clearSelection();
     });
 
+  const header = $(".header");
+  const timeShow = $("<div/>").css("font-size", "2em").appendTo(header);
+  timeShow.text("currentTime");
+
+  setInterval(async () => {
+    const { data: { data: { currentTime } } } = await axios.post("http://newxk.urp.seu.edu.cn/xsxk/web/now");
+    timeShow.text(new Date(currentTime));
+  }, 100);
+
 })();
