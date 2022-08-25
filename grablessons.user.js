@@ -2,7 +2,7 @@
 // @name 获取课程
 // @namespace Violentmonkey Scripts
 // @description  获取课程
-// @run-at document-body
+// @run-at document-end
 // @require https://ajax.aspnetcdn.com/ajax/jquery/jquery-3.5.1.min.js
 // @require https://cdn.bootcdn.net/ajax/libs/clipboard.js/2.0.11/clipboard.min.js
 // @match http://newxk.urp.seu.edu.cn/xsxk/*
